@@ -35,7 +35,7 @@ export default function Hero() {
           </h1>
         </div>
         <p className="text-white/80 text-lg md:text-xl">
-          Rýchla pomoc z neba pre stratené zvieratá.
+          Rýchla pomoc z neba pre stratené zvieratá
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <a

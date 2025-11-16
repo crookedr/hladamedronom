@@ -1,8 +1,13 @@
-// src/components/PhotoCarousel.tsx
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 
 type Slide = { src: string; alt: string; w: number; h: number; desc: string };
@@ -91,21 +96,15 @@ export default function PhotoCarousel() {
   const [dir, setDir] = useState<1 | -1>(1);
   const [isHover, setIsHover] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isAndroid, setIsAndroid] = useState(false);
 
   const timer = useRef<number | null>(null);
   const touchStartX = useRef<number | null>(null);
 
-  // detekcia mobilu podľa šírky
   useEffect(() => {
-    const update = () => {
-      if (typeof window !== "undefined") {
-        setIsMobile(window.innerWidth < 768);
-      }
-    };
-    update();
-    window.addEventListener("resize", update, { passive: true });
-    return () => window.removeEventListener("resize", update);
+    if (typeof navigator !== "undefined") {
+      setIsAndroid(/Android/i.test(navigator.userAgent));
+    }
   }, []);
 
   const next = useCallback(() => {
@@ -137,12 +136,12 @@ export default function PhotoCarousel() {
   }, [next, prev]);
 
   useEffect(() => {
-    // pri prepnutí fotky schovať info
     setShowInfo(false);
   }, [index]);
 
-  const onTouchStart = (e: React.TouchEvent) =>
-    (touchStartX.current = e.touches[0].clientX);
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
 
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current == null) return;
@@ -219,12 +218,11 @@ export default function PhotoCarousel() {
                 priority
               />
 
-              {/* spodný gradient */}
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
 
-              {/* tlačidlo info – rovnaké pre všetky zariadenia */}
               <div className="absolute left-3 bottom-3 z-10">
                 <button
+                  type="button"
                   onClick={() => setShowInfo((v) => !v)}
                   className="group inline-flex items-center gap-2 rounded-lg bg-black/55 px-3 py-2 ring-1 ring-white/15 hover:bg-black/70 transition text-left"
                 >
@@ -237,41 +235,41 @@ export default function PhotoCarousel() {
                 </button>
               </div>
 
-              {/* DESKTOP / TABLET: info panel priamo na fotke */}
-              <AnimatePresence>
-                {showInfo && !isMobile && (
-                  <motion.div
-                    className="absolute left-3 bottom-14 z-20 max-w-[85%] sm:max-w-[420px]"
-                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.98 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                  >
-                    <div className="rounded-xl bg-black/75 backdrop-blur-md ring-1 ring-white/20 shadow-xl shadow-black/40 p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="text-sm font-semibold">
-                          {slides[index].alt}
-                        </h3>
-                        <button
-                          aria-label="Zavrieť info"
-                          onClick={() => setShowInfo(false)}
-                          className="rounded-md px-2 py-1 text-white/80 hover:text-white hover:bg-white/10 transition text-sm"
-                        >
-                          ✕
-                        </button>
+              {!isAndroid && (
+                <AnimatePresence>
+                  {showInfo && (
+                    <motion.div
+                      className="absolute left-3 bottom-14 sm:bottom-16 z-20 max-w-[85%] sm:max-w-[420px]"
+                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                    >
+                      <div className="rounded-xl bg-black/75 backdrop-blur-md ring-1 ring-white/20 shadow-xl shadow-black/40 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="text-sm font-semibold">
+                            {slides[index].alt}
+                          </h3>
+                          <button
+                            aria-label="Zavrieť info"
+                            onClick={() => setShowInfo(false)}
+                            className="rounded-md px-2 py-1 text-white/80 hover:text-white hover:bg-white/10 transition text-sm"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <p className="mt-2 text-sm text-white/90 leading-relaxed">
+                          {slides[index].desc}
+                        </p>
                       </div>
-                      <p className="mt-2 text-sm text-white/90 leading-relaxed">
-                        {slides[index].desc}
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* šípky */}
         <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-3">
           <button
             aria-label="Predchádzajúca"
@@ -290,44 +288,6 @@ export default function PhotoCarousel() {
         </div>
       </div>
 
-      {/* MOBILE: info panel pod fotkou, mimo overflow-hidden */}
-      <AnimatePresence>
-        {showInfo && isMobile && (
-          <motion.div
-            key={index}
-            className="mt-4 mx-auto max-w-6xl"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-          >
-            <div className="rounded-2xl bg-black/70 backdrop-blur-md ring-1 ring-white/15 shadow-xl shadow-black/40 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-xs uppercase tracking-wider text-white/60">
-                    O fotke
-                  </div>
-                  <h3 className="text-sm font-semibold mt-1">
-                    {slides[index].alt}
-                  </h3>
-                </div>
-                <button
-                  aria-label="Zavrieť info"
-                  onClick={() => setShowInfo(false)}
-                  className="rounded-md px-2 py-1 text-white/80 hover:text-white hover:bg-white/10 transition text-sm"
-                >
-                  ✕
-                </button>
-              </div>
-              <p className="mt-2 text-sm text-white/90 leading-relaxed">
-                {slides[index].desc}
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* indikátory */}
       <div className="mt-6 flex items-center justify-center gap-2">
         {slides.map((_, i) => {
           const active = i === index;
@@ -345,6 +305,43 @@ export default function PhotoCarousel() {
           );
         })}
       </div>
+
+      {isAndroid && (
+        <AnimatePresence>
+          {showInfo && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 6 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="mt-4 max-w-6xl mx-auto"
+            >
+              <div className="rounded-2xl bg-black/70 ring-1 ring-white/15 shadow-xl shadow-black/40 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-xs uppercase tracking-wider text-white/60">
+                      Fotka {index + 1} z {slides.length}
+                    </div>
+                    <h3 className="mt-1 text-sm font-semibold">
+                      {slides[index].alt}
+                    </h3>
+                  </div>
+                  <button
+                    aria-label="Zavrieť info"
+                    onClick={() => setShowInfo(false)}
+                    className="rounded-md px-2 py-1 text-white/80 hover:text-white hover:bg-white/10 transition text-sm"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <p className="mt-2 text-sm text-white/90 leading-relaxed">
+                  {slides[index].desc}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </section>
   );
 }

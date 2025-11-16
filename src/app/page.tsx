@@ -18,7 +18,7 @@ export default function Home() {
           <header className="text-center mb-6">
             <h2 className="text-4xl md:text-4xl font-semibold tracking-tight">Pokrytie</h2>
             <p className="text-white/70 max-w-2xl mx-auto mt-2">
-              Nižšie môžete vidieť lokality, kde aktuálne pôsobíme.
+              Nižšie môžete vidieť lokality, kde aktuálne pôsobíme
             </p>
           </header>
           <MapSectionClient />
