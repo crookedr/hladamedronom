@@ -141,7 +141,7 @@ export default function PostupInteractive() {
             Ako postupovať
           </h2>
           <p className="text-white/70 max-w-2xl mx-auto mt-1 text-sm md:text-base">
-            Kliknite na bod 1–5 pre krátky popis kroku.
+            Kliknite na bod 1–5 pre krátky popis kroku
           </p>
         </header>
 

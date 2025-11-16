@@ -10,7 +10,7 @@ export default function Hero() {
         className="
           absolute inset-0 h-full w-full z-0 object-cover
           object-[80%_50%]       /* mobily: posun doprava (X=80%, Y=50%) */
-          sm:object-[70%_50%]    /* menšie tablety: jemnejšie doprava */
+          sm:object-[75%_50%]    /* menšie tablety: jemnejšie doprava */
           md:object-[50%_50%]    /* od md+: späť do stredu */
         "
         src="/search-mission.mp4"
@@ -27,7 +27,7 @@ export default function Hero() {
           <Image
             src={ozLogo}
             alt="Logo OZ"
-            className="w-24 h-24 object-contain drop-shadow-xl"
+            className="w-36 h-36 object-contain drop-shadow-xl"
             priority
           />
           <h1 className="text-4xl md:text-5xl font-bold mt-4 text-white">
