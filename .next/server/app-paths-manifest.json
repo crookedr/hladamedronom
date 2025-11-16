@@ -1,0 +1,6 @@
+{
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/rasty/page": "app/rasty/page.js",
+  "/page": "app/page.js",
+  "/nas-tim/page": "app/nas-tim/page.js"
+}
