@@ -1,3 +1,4 @@
+// src/components/PhotoCarousel.tsx
 "use client";
 
 import Image from "next/image";
@@ -180,7 +181,7 @@ export default function PhotoCarousel() {
       </div>
 
       <div
-        className="relative w-full max-w-6xl mx-auto overflow-hidden rounded-3xl"
+        className="relative w-full max-w-6xl mx-auto overflow-hidden rounded-3xl isolate"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
@@ -193,20 +194,23 @@ export default function PhotoCarousel() {
               initial="enter"
               animate="center"
               exit="exit"
-              className="absolute inset-0"
+              className="absolute inset-0 [transform:translateZ(0)]"
             >
               <Image
                 src={slides[index].src}
                 alt={slides[index].alt}
                 fill
                 sizes="(max-width: 768px) 90vw, 900px"
-                className="object-cover"
+                className="object-cover z-0"
                 priority
+                style={{ willChange: "transform" }}
               />
 
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
+              {/* spodný fade, pod info panelom */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 via-black/25 to-transparent z-10" />
 
-              <div className="absolute left-3 bottom-3 z-10">
+              {/* tlačidlo info */}
+              <div className="absolute left-3 bottom-3 z-20">
                 <button
                   onClick={() => setShowInfo((v) => !v)}
                   className="group inline-flex items-center gap-2 rounded-lg bg-black/55 px-3 py-2 ring-1 ring-white/15 hover:bg-black/70 transition text-left"
@@ -220,10 +224,11 @@ export default function PhotoCarousel() {
                 </button>
               </div>
 
+              {/* info panel */}
               <AnimatePresence>
                 {showInfo && (
                   <motion.div
-                    className="absolute left-3 bottom-12 sm:bottom-14 z-20 max-w-[85%] sm:max-w-[420px]"
+                    className="absolute left-3 bottom-12 sm:bottom-14 z-30 max-w-[85%] sm:max-w-[420px] [transform:translateZ(0)]"
                     initial={{ opacity: 0, y: 8, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.98 }}
@@ -253,6 +258,7 @@ export default function PhotoCarousel() {
           </AnimatePresence>
         </div>
 
+        {/* šípky */}
         <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-3">
           <button
             aria-label="Predchádzajúca"
@@ -271,6 +277,7 @@ export default function PhotoCarousel() {
         </div>
       </div>
 
+      {/* bullet indikátory */}
       <div className="mt-6 flex items-center justify-center gap-2">
         {slides.map((_, i) => {
           const active = i === index;
@@ -284,6 +291,7 @@ export default function PhotoCarousel() {
               className={`h-2 rounded-full transition-all ${
                 active ? "w-6 bg-white" : "w-2 bg-white/30 hover:bg-white/50"
               }`}
+              aria-label={`Prepnúť na snímku ${i + 1}`}
             />
           );
         })}
