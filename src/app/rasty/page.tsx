@@ -75,8 +75,8 @@ export default function RastyPage() {
             <h3 className="text-2xl md:text-3xl font-semibold">Ďakujeme, Rasty</h3>
             <p className="mt-3 text-white/80 leading-7">
               Rasty už medzi nami nie je. Zanechal však{" "}
-              <span className="text-white font-medium">silný odkaz</span> – vďaka nemu
-              vznikla komunita, ktorá dnes pomáha hľadať a zachraňovať ďalšie zvieratá.
+              <span className="text-white font-medium">silný odkaz.</span>Vďaka nemu
+              vzniklo združenie, ktoré dnes pomáha hľadať a zachraňovať ďalšie zvieratá.
             </p>
           </motion.div>
         </section>

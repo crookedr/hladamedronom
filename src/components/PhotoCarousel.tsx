@@ -1,3 +1,4 @@
+// src/components/PhotoCarousel.tsx
 "use client";
 
 import Image from "next/image";
@@ -90,9 +91,22 @@ export default function PhotoCarousel() {
   const [dir, setDir] = useState<1 | -1>(1);
   const [isHover, setIsHover] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const timer = useRef<number | null>(null);
   const touchStartX = useRef<number | null>(null);
+
+  // detekcia mobilu podľa šírky
+  useEffect(() => {
+    const update = () => {
+      if (typeof window !== "undefined") {
+        setIsMobile(window.innerWidth < 768);
+      }
+    };
+    update();
+    window.addEventListener("resize", update, { passive: true });
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   const next = useCallback(() => {
     setDir(1);
@@ -122,8 +136,8 @@ export default function PhotoCarousel() {
     return () => window.removeEventListener("keydown", onKey);
   }, [next, prev]);
 
-  // pri prepnutí fotky skryj info panel
   useEffect(() => {
+    // pri prepnutí fotky schovať info
     setShowInfo(false);
   }, [index]);
 
@@ -163,10 +177,7 @@ export default function PhotoCarousel() {
     }),
   };
 
-  // pomer necháme, ale nepoužívame padding hack – spravíme aspect pomer cez Tailwind
-  const ratio = slides[index].h / slides[index].w;
-  const aspectClass =
-    ratio > 0.8 ? "aspect-[4/3]" : "aspect-[16/9]"; // pre istotu, ale skôr kozmetika
+  const ratioPad = (slides[index].h / slides[index].w) * 100;
 
   return (
     <section
@@ -188,8 +199,7 @@ export default function PhotoCarousel() {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        {/* BOX S ASPEKTOM – na mobilo ch sa správa ako 4:3, na väčších 16:9 */}
-        <div className={`relative w-full ${aspectClass} sm:aspect-[16/9]`}>
+        <div style={{ paddingTop: `${ratioPad}%` }} className="relative w-full">
           <AnimatePresence custom={dir} initial={false} mode="popLayout">
             <motion.div
               key={index}
@@ -209,11 +219,11 @@ export default function PhotoCarousel() {
                 priority
               />
 
-              {/* gradient dole na text / button */}
+              {/* spodný gradient */}
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
 
-              {/* INFO BUTTON – spoločný pre všetkých */}
-              <div className="absolute left-3 bottom-3 z-30">
+              {/* tlačidlo info – rovnaké pre všetky zariadenia */}
+              <div className="absolute left-3 bottom-3 z-10">
                 <button
                   onClick={() => setShowInfo((v) => !v)}
                   className="group inline-flex items-center gap-2 rounded-lg bg-black/55 px-3 py-2 ring-1 ring-white/15 hover:bg-black/70 transition text-left"
@@ -227,78 +237,41 @@ export default function PhotoCarousel() {
                 </button>
               </div>
 
-              {/* INFO PANELY – desktop verzia (overlay na fotke) + mobil verzia (bottom sheet) */}
+              {/* DESKTOP / TABLET: info panel priamo na fotke */}
               <AnimatePresence>
-                {showInfo && (
-                  <>
-                    {/* DESKTOP / VÄČŠIE DISPLEJE – overlay na fotke */}
-                    <motion.div
-                      className="hidden sm:block absolute left-3 bottom-14 z-30 max-w-[420px]"
-                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 6, scale: 0.98 }}
-                      transition={{ duration: 0.2, ease: "easeOut" }}
-                    >
-                      <div className="rounded-xl bg-black/75 backdrop-blur-md ring-1 ring-white/20 shadow-xl shadow-black/40 p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 className="text-sm font-semibold">
-                            {slides[index].alt}
-                          </h3>
-                          <button
-                            aria-label="Zavrieť info"
-                            onClick={() => setShowInfo(false)}
-                            className="rounded-md px-2 py-1 text-white/80 hover:text-white hover:bg-white/10 transition text-sm"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                        <p className="mt-2 text-sm text-white/90 leading-relaxed">
-                          {slides[index].desc}
-                        </p>
+                {showInfo && !isMobile && (
+                  <motion.div
+                    className="absolute left-3 bottom-14 z-20 max-w-[85%] sm:max-w-[420px]"
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                  >
+                    <div className="rounded-xl bg-black/75 backdrop-blur-md ring-1 ring-white/20 shadow-xl shadow-black/40 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="text-sm font-semibold">
+                          {slides[index].alt}
+                        </h3>
+                        <button
+                          aria-label="Zavrieť info"
+                          onClick={() => setShowInfo(false)}
+                          className="rounded-md px-2 py-1 text-white/80 hover:text-white hover:bg-white/10 transition text-sm"
+                        >
+                          ✕
+                        </button>
                       </div>
-                    </motion.div>
-
-                    {/* MOBILE – bottom sheet cez šírku mobilu (nič nepresekne obrázok) */}
-                    <motion.div
-                      className="sm:hidden fixed inset-x-0 bottom-0 z-[60]"
-                      initial={{ opacity: 0, y: 40 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 40 }}
-                      transition={{ duration: 0.22, ease: "easeOut" }}
-                    >
-                      {/* polopriehľadné pozadie – kliknutím zavrie */}
-                      <button
-                        aria-label="Zavrieť info"
-                        className="absolute inset-0 w-full h-full bg-black/40"
-                        onClick={() => setShowInfo(false)}
-                      />
-
-                      <div className="relative mx-4 mb-6 rounded-2xl bg-black/90 backdrop-blur-md ring-1 ring-white/20 shadow-2xl shadow-black/60 p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 className="text-sm font-semibold">
-                            {slides[index].alt}
-                          </h3>
-                          <button
-                            aria-label="Zavrieť info"
-                            onClick={() => setShowInfo(false)}
-                            className="rounded-md px-2 py-1 text-white/80 hover:text-white hover:bg-white/10 transition text-sm"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                        <p className="mt-2 text-sm text-white/90 leading-relaxed">
-                          {slides[index].desc}
-                        </p>
-                      </div>
-                    </motion.div>
-                  </>
+                      <p className="mt-2 text-sm text-white/90 leading-relaxed">
+                        {slides[index].desc}
+                      </p>
+                    </div>
+                  </motion.div>
                 )}
               </AnimatePresence>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* šípky left/right */}
+        {/* šípky */}
         <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-3">
           <button
             aria-label="Predchádzajúca"
@@ -317,7 +290,44 @@ export default function PhotoCarousel() {
         </div>
       </div>
 
-      {/* bullets pod fotkami */}
+      {/* MOBILE: info panel pod fotkou, mimo overflow-hidden */}
+      <AnimatePresence>
+        {showInfo && isMobile && (
+          <motion.div
+            key={index}
+            className="mt-4 mx-auto max-w-6xl"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            <div className="rounded-2xl bg-black/70 backdrop-blur-md ring-1 ring-white/15 shadow-xl shadow-black/40 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-xs uppercase tracking-wider text-white/60">
+                    O fotke
+                  </div>
+                  <h3 className="text-sm font-semibold mt-1">
+                    {slides[index].alt}
+                  </h3>
+                </div>
+                <button
+                  aria-label="Zavrieť info"
+                  onClick={() => setShowInfo(false)}
+                  className="rounded-md px-2 py-1 text-white/80 hover:text-white hover:bg-white/10 transition text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+              <p className="mt-2 text-sm text-white/90 leading-relaxed">
+                {slides[index].desc}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* indikátory */}
       <div className="mt-6 flex items-center justify-center gap-2">
         {slides.map((_, i) => {
           const active = i === index;
