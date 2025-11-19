@@ -35,7 +35,7 @@ const members: Member[] = [
     role: "Podpredsedníčka združenia",
     img: "/team/03.webp",
     bio:
-      "Simona je jednou zo zakladateliek združenia a pochádza z Trenčína. Stará sa o komunikáciu s majiteľmi stratených zvierat a spravuje naše sociálne siete, kde s citom zdieľa ich príbehy a prináša aktuálne informácie o našej činnosti. Je neoddeliteľnou súčasťou tímu – svojimi nápadmi, energiou a zodpovedným prístupom pomáha združeniu neustále napredovať. Vždy je ochotná pomôcť, prináša pozitívnu atmosféru a motivuje ostatných svojím odhodlaním a srdcom pre zvieratá.",
+      "Simona je jednou zo zakladateliek združenia a pochádza z Trenčína. Stará sa o komunikáciu s majiteľmi stratených zvierat a spravuje naše sociálne siete, kde s citom zdieľa ich príbehy a prináša aktuálne informácie o našej činnosti. Je neoddeliteľnou súčasťou tímu, pretože svojimi nápadmi, energiou a zodpovedným prístupom pomáha združeniu napredovať. Vždy je ochotná pomôcť, prináša pozitívnu atmosféru a motivuje ostatných svojím odhodlaním a úprimným vzťahom k zvieratám.",
     imgPos: "center 35%",
   },
   {

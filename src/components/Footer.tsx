@@ -172,7 +172,7 @@ export default function Footer() {
         <div className="border-t border-white/10">
           <div className="mx-auto max-w-7xl px-10 py-4 flex flex-col gap-1.5 md:flex-row md:items-center md:justify-between text-sm">
             <p className="text-white/60">© {new Date().getFullYear()} OZ Hľadáme Dronom</p>
-            <p className="text-white/50">Vytvorené s láskou, Hľadáme Dronom</p>
+            <p className="text-white/50">Vytvorené s láskou.</p>
           </div>
         </div>
       </div>

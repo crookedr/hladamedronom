@@ -55,7 +55,7 @@ export default function Fungovanie({ id = "fungovanie" }: Props) {
         className="relative mb-10 overflow-hidden rounded-xl border border-white/12 bg-white/[0.03] px-5 py-4"
         aria-label="Dôležité upozornenie"
       >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-start md:gap-20 gap-3">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-white/60">
             <span className="h-1.5 w-1.5 rounded-full bg-white/60 animate-pulse" />
             Dôležité
