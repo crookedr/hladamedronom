@@ -32,7 +32,7 @@ export default function PhotoCarousel() {
         w: 1600,
         h: 1067,
         desc:
-          "Na základe informácii od polovníkov, ktorí naviedli nášho pilota na správne miesto sa podarilo nájsť dvoch psíkov plemena Husky majiteľke.",
+          "Na základe informácii od poľovníkov, ktorí naviedli nášho pilota na správne miesto sa podarilo nájsť dvoch psíkov plemena Husky majiteľke.",
       },
       {
         src: "/gallery/gal04.webp",
@@ -64,7 +64,7 @@ export default function PhotoCarousel() {
         w: 1600,
         h: 1067,
         desc:
-          "Bolo horúco a kone potrebovali vodu. DHZ Hlohovec prišli a zabezpečili pitný režim pre všetky kone. ",
+          "Bolo horúco a kone potrebovali vodu. DHZ Hlohovec prišli a zabezpečili pitný režim pre všetky kone.",
       },
       {
         src: "/gallery/gal08.webp",
@@ -166,11 +166,11 @@ export default function PhotoCarousel() {
 
   return (
     <section
-      className="relative bg-transparent py-20 px-6 md:px-0"
+      className="relative bg-transparent py-20 px-0 sm:px-6"
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
     >
-      <div className="max-w-6xl mx-auto text-center">
+      <div className="max-w-6xl mx-auto text-center px-6 sm:px-0">
         <h2 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
           Fotogaléria
         </h2>
@@ -180,7 +180,7 @@ export default function PhotoCarousel() {
       </div>
 
       <div
-        className="relative w-full max-w-6xl mx-auto overflow-hidden rounded-3xl"
+        className="relative w-full max-w-none sm:max-w-6xl mx-0 sm:mx-auto overflow-hidden rounded-none sm:rounded-3xl"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
@@ -199,56 +199,42 @@ export default function PhotoCarousel() {
                 src={slides[index].src}
                 alt={slides[index].alt}
                 fill
-                sizes="(max-width: 768px) 90vw, 900px"
+                sizes="(max-width: 768px) 100vw, 900px"
                 className="object-cover"
                 priority
               />
 
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
+              {/* silnejší gradient pre čitateľnosť na mobile */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-32 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
 
-              <div className="absolute left-3 bottom-3 z-10">
-                <button
-                  onClick={() => setShowInfo((v) => !v)}
-                  className="group inline-flex items-center gap-2 rounded-lg bg-black/55 px-3 py-2 ring-1 ring-white/15 hover:bg-black/70 transition text-left"
-                >
-                  <span className="text-sm font-medium">
-                    {slides[index].alt}
-                  </span>
-                  <span className="text-xs text-white/70 group-hover:text-white/90">
-                    {showInfo ? "Skryť" : "ℹ︎ O fotke"}
-                  </span>
-                </button>
-              </div>
-
-              <AnimatePresence>
-                {showInfo && (
-                  <motion.div
-                    className="absolute left-3 bottom-12 sm:bottom-14 z-20 max-w-[85%] sm:max-w-[420px]"
-                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.98 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                  >
-                    <div className="rounded-xl bg-black/75 backdrop-blur-md ring-1 ring-white/20 shadow-xl shadow-black/40 p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="text-sm font-semibold">
-                          {slides[index].alt}
-                        </h3>
-                        <button
-                          aria-label="Zavrieť info"
-                          onClick={() => setShowInfo(false)}
-                          className="rounded-md px-2 py-1 text-white/80 hover:text-white hover:bg-white/10 transition text-sm"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                      <p className="mt-2 text-sm text-white/90 leading-relaxed">
-                        {slides[index].desc}
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* overlay s textom – aj na mobile */}
+              <motion.div
+                className="absolute left-3 right-3 sm:right-auto bottom-3 z-20 max-w-none sm:max-w-[420px]"
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                <div className="rounded-lg bg-black/70 backdrop-blur-sm ring-0 shadow-lg shadow-black/30 p-2.5 sm:p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-[13px] sm:text-sm font-semibold">
+                      {slides[index].alt}
+                    </h3>
+                    <button
+                      aria-label="Zavrieť info"
+                      onClick={() => setShowInfo((v) => !v)}
+                      className="rounded-md px-2 py-1 text-[11px] sm:text-xs text-white/80 hover:text-white hover:bg-white/10 transition"
+                    >
+                      {showInfo ? "Skryť" : "ℹ︎ O fotke"}
+                    </button>
+                  </div>
+                  {showInfo && (
+                    <p className="mt-2 text-[13px] sm:text-sm text-white/90 leading-relaxed">
+                      {slides[index].desc}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -257,14 +243,14 @@ export default function PhotoCarousel() {
           <button
             aria-label="Predchádzajúca"
             onClick={prev}
-            className="rounded-full bg-black/50 px-3 py-2 text-white/90 hover:bg-black/70 transition"
+            className="rounded-full bg-black/55 px-3 py-2 text-white/90 hover:bg-black/75 transition text-sm"
           >
             ←
           </button>
           <button
             aria-label="Ďalšia"
             onClick={next}
-            className="rounded-full bg-black/50 px-3 py-2 text-white/90 hover:bg-black/70 transition"
+            className="rounded-full bg-black/55 px-3 py-2 text-white/90 hover:bg-black/75 transition text-sm"
           >
             →
           </button>
