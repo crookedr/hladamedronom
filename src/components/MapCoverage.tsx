@@ -40,8 +40,10 @@ function SetupPanes() {
         if (p) p.style.zIndex = String(z);
       }
     };
+
     ensure("west", 399);
     ensure("covered", 401);
+    ensure("nodrone", 405);
   }, [map]);
   return null;
 }
@@ -50,6 +52,8 @@ export default function MapCoverage() {
   const [mounted, setMounted] = useState(false);
   const [westLayer, setWestLayer] = useState<FeatureCollection<Geometry, DistrictProps> | null>(null);
   const [coveredLayer, setCoveredLayer] = useState<FeatureCollection<Geometry, DistrictProps> | null>(null);
+  const [noDroneLayer, setNoDroneLayer] = useState<FeatureCollection<Geometry, DistrictProps> | null>(null);
+  const [bratislavaLayer, setBratislavaLayer] = useState<FeatureCollection<Geometry, DistrictProps> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [height, setHeight] = useState<number>(380);
@@ -59,7 +63,7 @@ export default function MapCoverage() {
     const compute = () => {
       const w = window.innerWidth;
       if (w < 640) return 380;
-      if (w < 1024) return 500; 
+      if (w < 1024) return 500;
       return 600;
     };
     const apply = () => setHeight(compute());
@@ -113,6 +117,7 @@ export default function MapCoverage() {
         "Šaľa",
         "Topoľčany",
         "Zlaté Moravce",
+        "Senec",
       ].map(normalizeName),
     []
   );
@@ -134,19 +139,41 @@ export default function MapCoverage() {
               n === "bratislava ii" ||
               n === "bratislava iii" ||
               n === "bratislava iv" ||
-              n === "bratislava v";
+              n === "bratislava v" ||
+              n === "malacky" ||
+              n === "pezinok";
             return westNames.includes(n) && !isBA;
           }),
         };
 
         const covered: FeatureCollection<Geometry, DistrictProps> = {
           type: "FeatureCollection",
-          features: data.features.filter((f) => coveredNames.includes(normalizeName(getDistrictNameRaw(f)))),
+          features: data.features.filter((f) =>
+            coveredNames.includes(normalizeName(getDistrictNameRaw(f)))
+          ),
+        };
+
+        const bratislavaNames = [
+          "bratislava i",
+          "bratislava ii",
+          "bratislava iii",
+          "bratislava iv",
+          "bratislava v",
+          "malacky",
+          "pezinok",
+        ];
+
+        const bratislava: FeatureCollection<Geometry, DistrictProps> = {
+          type: "FeatureCollection",
+          features: data.features.filter((f) =>
+            bratislavaNames.includes(normalizeName(getDistrictNameRaw(f)))
+          ),
         };
 
         if (!cancelled) {
           setWestLayer(west);
           setCoveredLayer(covered);
+          setBratislavaLayer(bratislava);
           setError(null);
         }
       } catch (e) {
@@ -158,6 +185,29 @@ export default function MapCoverage() {
     };
   }, [westNames, coveredNames]);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/nodronezones.geojson", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = (await res.json()) as FeatureCollection<Geometry, DistrictProps>;
+
+        if (!cancelled) {
+          setNoDroneLayer(data);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          const msg = e instanceof Error ? e.message : String(e);
+          setError((prev) => prev ?? msg);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const styleWest: PathOptions = {
     color: "#9ca3af",
     weight: 1.2,
@@ -166,12 +216,22 @@ export default function MapCoverage() {
     fillOpacity: 0.28,
     stroke: true,
   };
+
   const styleCovered: PathOptions = {
     color: "#10b981",
     weight: 2,
     opacity: 1,
     fillColor: "#10b981",
     fillOpacity: 0.45,
+    stroke: true,
+  };
+
+  const styleNoDrone: PathOptions = {
+    color: "#ef4444",
+    weight: 2,
+    opacity: 1,
+    fillColor: "#ef4444", 
+    fillOpacity: 0.35,
     stroke: true,
   };
 
@@ -196,6 +256,10 @@ export default function MapCoverage() {
 
         {westLayer && <GeoJSON data={westLayer} style={styleWest} pane="west" />}
         {coveredLayer && <GeoJSON data={coveredLayer} style={styleCovered} pane="covered" />}
+
+        {bratislavaLayer && <GeoJSON data={bratislavaLayer} style={styleNoDrone} pane="nodrone" />}
+
+        {noDroneLayer && <GeoJSON data={noDroneLayer} style={styleNoDrone} pane="nodrone" />}
       </MapContainer>
 
       <div
@@ -206,12 +270,28 @@ export default function MapCoverage() {
         <div className="text-xs uppercase tracking-wider text-white/60 mb-2">Legenda</div>
         <ul className="space-y-1.5 text-sm">
           <li className="flex items-center gap-2">
-            <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "#10b981" }} aria-hidden="true" />
+            <span
+              className="inline-block h-3 w-3 rounded-sm"
+              style={{ background: "#10b981" }}
+              aria-hidden="true"
+            />
             <span>Aktívne pokrytie</span>
           </li>
           <li className="flex items-center gap-2">
-            <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "#9ca3af" }} aria-hidden="true" />
+            <span
+              className="inline-block h-3 w-3 rounded-sm"
+              style={{ background: "#9ca3af" }}
+              aria-hidden="true"
+            />
             <span>Pokrytie v rámci možností</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <span
+              className="inline-block h-3 w-3 rounded-sm"
+              style={{ background: "#ef4444" }}
+              aria-hidden="true"
+            />
+            <span>Bezdronové zóny</span>
           </li>
         </ul>
       </div>
