@@ -239,13 +239,13 @@ export default function MapCoverage() {
 
   return (
     <div className="relative rounded-2xl overflow-hidden">
-      <MapContainer
-        center={[48.6, 18.0]}
-        zoom={8}
-        scrollWheelZoom={false}
-        style={{ height: `${height}px`, width: "100%" }}
-        className="touch-pan-x touch-pan-y"
-      >
+        <MapContainer
+          center={[48.7, 19.7]}
+          zoom={8}        
+          scrollWheelZoom={false}
+          style={{ height: `${height}px`, width: "100%" }}
+          className="touch-pan-x touch-pan-y"
+        >
         <SetupPanes />
 
         <TileLayer
