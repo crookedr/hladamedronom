@@ -30,23 +30,23 @@ export default function Hero() {
             className="w-36 h-36 object-contain drop-shadow-xl"
             priority
           />
-          <h1 className="text-4xl md:text-5xl font-bold mt-4 text-white">
+          <h1 className="text-4xl md:text-5xl font-bold mt-4 mr-6 text-white">
             Hľadáme Dronom
           </h1>
         </div>
-        <p className="text-white/80 text-lg md:text-xl">
+        <p className="text-white/80 text-lg mr-6 md:text-xl">
           Rýchla pomoc z neba pre stratené zvieratá
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <a
             href="#kontakt"
-            className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-medium bg-white text-black hover:bg-emerald-400 transition"
+            className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 mr-6 ml-2 text-sm font-medium bg-white text-black hover:bg-emerald-400 transition"
           >
             Požiadať o pomoc
           </a>
           <a
             href="#pokrytie"
-            className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-medium border border-white/20 hover:border-white/40 transition"
+            className="inline-flex items-center gap-2 rounded-2xl px-5 py-3 mr-6 text-sm font-medium border border-white/20 hover:border-white/40 transition"
           >
             Pozrieť pokrytie
           </a>
