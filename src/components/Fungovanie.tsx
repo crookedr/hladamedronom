@@ -43,7 +43,7 @@ export default function Fungovanie({ id = "fungovanie" }: Props) {
       <header className="text-center mb-8">
         <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">Ako fungujeme?</h2>
         <p className="text-white/70 max-w-2xl mx-auto mt-2 leading-7">
-          Rýchly a jasný postup, aby ste vedeli, čo od nás čakať.
+          Rýchly a jasný postup, aby ste vedeli, čo od nás čakať
         </p>
       </header>
 

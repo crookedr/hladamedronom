@@ -35,7 +35,7 @@ export default function RastyTimeline() {
     <div className="w-full">
       <div className="text-center mb-6">
         <h3 className="text-2xl md:text-3xl font-semibold tracking-tight">6 dní pátrania</h3>
-        <p className="text-white/70 mt-2">Prehľad krokov, ktoré viedli k nájdeniu Rastyho.</p>
+        <p className="text-white/70 mt-2">Prehľad krokov, ktoré viedli k nájdeniu Rastyho</p>
       </div>
 
       <div className="md:hidden select-none" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>

@@ -175,7 +175,7 @@ export default function PhotoCarousel() {
           Fotogaléria
         </h2>
         <p className="text-white/70 mb-12">
-          Zábery z našich akcií. Drony, terén, pátrania a výsledky.
+          Zábery z našich akcií. Drony, terén, pátrania a výsledky
         </p>
       </div>
 

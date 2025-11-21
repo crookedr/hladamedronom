@@ -17,7 +17,7 @@ export default function NasTimPage() {
           <header className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">Náš tím</h1>
             <p className="text-white/70 max-w-2xl mx-auto mt-3">
-              Sme partia nadšencov dronov, techniky a pátrania. Zoznám sa s nami.
+              Sme partia nadšencov dronov, techniky a pátrania. Zoznám sa s nami
             </p>
           </header>
           <TeamGrid />

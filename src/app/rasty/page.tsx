@@ -65,7 +65,6 @@ export default function RastyPage() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 pt-16 pb-24 relative">
-          {/* jemný svetlý kruh v pozadí */}
           <div
             aria-hidden
             className="pointer-events-none absolute top-10 h-[300px] w-[300px] rounded-full bg-white/5 blur-3xl"
@@ -78,7 +77,6 @@ export default function RastyPage() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="relative"
           >
-            {/* vertikálna decentná čiara */}
             <div className="absolute left-0 top-0 h-full w-[2px] bg-white/10" />
 
             <div className="pl-6 md:pl-8">
@@ -92,8 +90,7 @@ export default function RastyPage() {
 
               <p className="mt-4 text-white/80 leading-7 max-w-2xl">
                 Rasty už medzi nami nie je. Zanechal však{" "}
-                <span className="text-white font-medium">silný odkaz.</span>  
-                Vďaka nemu vzniklo združenie, ktoré dnes pomáha hľadať a zachraňovať ďalšie zvieratá.
+                <span className="text-white font-medium">silný odkaz.</span> Vďaka nemu vzniklo združenie, ktoré dnes pomáha hľadať a zachraňovať ďalšie zvieratá.
               </p>
 
               <motion.p
