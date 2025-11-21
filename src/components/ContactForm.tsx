@@ -215,7 +215,7 @@ export default function ContactForm() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-full px-8 py-3 text-sm font-semibold bg-emerald-500 text-black hover:bg-emerald-400 transition-all disabled:opacity-60"
+            className="cursor-pointer rounded-full px-8 py-3 text-sm font-semibold bg-emerald-500 text-black hover:bg-emerald-400 transition-all disabled:opacity-60"
           >
             {isSubmitting ? "Odosielam…" : "✉️ Odoslať"}
           </button>
