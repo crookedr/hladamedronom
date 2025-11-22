@@ -27,7 +27,7 @@ const members: Member[] = [
     role: "Člen združenia",
     img: "/team/02.webp",
     bio:
-      "Roman je jeden zo zakladateľov a aktívnych členov združenia. Má na starosti najmä technickú stránku fungovania, ktorá začína od nastavovania sociálnych sietí a potrebných online nástrojov až po vývoj a prevádzku tejto webovej stránky, na ktorej pracoval niekoľko mesiacov. V združení sa zameriava na to, aby všetko fungovalo moderne. Jeho cieľom je podieľať sa na stabilnom a správnom chode združenia, pomáhať rozvíjať naše projekty a hľadať nové riešenia, ktoré posunú naše fungovanie o krok ďalej. Zároveň chce postupne budovať silnú online prítomnosť, ktorá priblíži naše fungovanie verejnosti a posilní dôveru v to, čo robíme.",
+      "Roman je jeden zo zakladateľov a aktívnych členov združenia. Má na starosti najmä technickú stránku fungovania, ktorá začína od nastavovania sociálnych sietí a potrebných online nástrojov až po vývoj a prevádzku tejto webovej stránky, na ktorú sa práve pozeráte. V združení sa zameriava na to, aby všetko fungovalo moderne. Jeho cieľom je podieľať sa na stabilnom a správnom chode združenia, pomáhať rozvíjať naše projekty a hľadať nové riešenia, ktoré posunú naše fungovanie o krok ďalej. Zároveň chce postupne budovať silnú online prítomnosť, ktorá priblíži naše fungovanie verejnosti a posilní dôveru v to, čo robíme.",
     imgPos: "center",
   },
   {
