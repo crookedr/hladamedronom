@@ -5,7 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 
 type Slide = { src: string; alt: string; w: number; h: number; desc: string };
-const AUTO_DELAY = 4000;
+const AUTO_DELAY = 8000;
+const INACTIVITY_RESUME_MS = 60_000;
 
 export default function PhotoCarousel() {
   const slides: Slide[] = useMemo(
@@ -91,36 +92,72 @@ export default function PhotoCarousel() {
   const [isHover, setIsHover] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
 
+
+  const [lastInteraction, setLastInteraction] = useState<number>(
+    () => Date.now() - INACTIVITY_RESUME_MS
+  );
+
   const timer = useRef<number | null>(null);
   const touchStartX = useRef<number | null>(null);
 
-  const next = useCallback(() => {
+  const markInteraction = useCallback(() => {
+    setLastInteraction(Date.now());
+  }, []);
+
+  const goNext = useCallback(() => {
     setDir(1);
     setIndex((i) => (i + 1) % slides.length);
   }, [slides.length]);
 
-  const prev = useCallback(() => {
+  const goPrev = useCallback(() => {
     setDir(-1);
     setIndex((i) => (i - 1 + slides.length) % slides.length);
   }, [slides.length]);
 
+  const userNext = useCallback(() => {
+    markInteraction();
+    goNext();
+  }, [markInteraction, goNext]);
+
+  const userPrev = useCallback(() => {
+    markInteraction();
+    goPrev();
+  }, [markInteraction, goPrev]);
+
   useEffect(() => {
     if (timer.current) clearInterval(timer.current);
-    if (!isHover) timer.current = window.setInterval(next, AUTO_DELAY);
+
+    const tick = () => {
+      const now = Date.now();
+      const inactiveFor = now - lastInteraction;
+
+      if (!isHover && inactiveFor >= INACTIVITY_RESUME_MS) {
+        goNext();
+      }
+    };
+
+    timer.current = window.setInterval(tick, AUTO_DELAY);
+
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
-  }, [next, isHover]);
+  }, [goNext, isHover, lastInteraction]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") next();
-      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") {
+        markInteraction();
+        goNext();
+      }
+      if (e.key === "ArrowLeft") {
+        markInteraction();
+        goPrev();
+      }
       if (e.key === "Escape") setShowInfo(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [next, prev]);
+  }, [goNext, goPrev, markInteraction]);
 
   useEffect(() => {
     setShowInfo(false);
@@ -133,8 +170,8 @@ export default function PhotoCarousel() {
     if (touchStartX.current == null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(dx) > 40) {
-      if (dx < 0) next();
-      else prev();
+      if (dx < 0) userNext();
+      else userPrev();
     }
     touchStartX.current = null;
   };
@@ -204,10 +241,8 @@ export default function PhotoCarousel() {
                 priority
               />
 
-              {/* silnejší gradient pre čitateľnosť na mobile */}
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-32 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
 
-              {/* overlay s textom – aj na mobile */}
               <motion.div
                 className="absolute left-3 right-3 sm:right-auto bottom-3 z-20 max-w-none sm:max-w-[420px]"
                 initial={{ opacity: 0, y: 8, scale: 0.98 }}
@@ -221,8 +256,11 @@ export default function PhotoCarousel() {
                       {slides[index].alt}
                     </h3>
                     <button
-                      aria-label="Zavrieť info"
-                      onClick={() => setShowInfo((v) => !v)}
+                      aria-label="Zobraziť alebo skryť info o fotke"
+                      onClick={() => {
+                        markInteraction();
+                        setShowInfo((v) => !v);
+                      }}
                       className="rounded-md px-2 py-1 text-[11px] sm:text-xs text-white/80 hover:text-white hover:bg-white/10 transition"
                     >
                       {showInfo ? "Skryť" : "ℹ︎ O fotke"}
@@ -242,14 +280,14 @@ export default function PhotoCarousel() {
         <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-3">
           <button
             aria-label="Predchádzajúca"
-            onClick={prev}
+            onClick={userPrev}
             className="rounded-full bg-black/55 px-3 py-2 text-white/90 hover:bg-black/75 transition text-sm"
           >
             ←
           </button>
           <button
             aria-label="Ďalšia"
-            onClick={next}
+            onClick={userNext}
             className="rounded-full bg-black/55 px-3 py-2 text-white/90 hover:bg-black/75 transition text-sm"
           >
             →
@@ -264,12 +302,14 @@ export default function PhotoCarousel() {
             <button
               key={i}
               onClick={() => {
+                markInteraction();
                 setDir(i > index ? 1 : -1);
                 setIndex(i);
               }}
               className={`h-2 rounded-full transition-all ${
                 active ? "w-6 bg-white" : "w-2 bg-white/30 hover:bg-white/50"
               }`}
+              aria-label={`Prejsť na fotku ${i + 1}`}
             />
           );
         })}

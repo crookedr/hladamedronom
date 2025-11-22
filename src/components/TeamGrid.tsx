@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Member = {
@@ -51,7 +51,7 @@ const members: Member[] = [
     role: "Dronista",
     img: "/team/05.webp",
     bio:
-      "Marek je rodákom z Novej Dubnice a jeho “revírom“ pátracích aktivít je široké okolie jeho bydliska smerujúce vyššie na sever, vďaka čomu dokáže prísť na pomoc napríklad aj do Považskej Bystrice. Je špičkový pilot, ktorý dokonca s dronmi podniká a venuje sa 3D skenovaniu, mapovaniu a ďalším aktivitám v spoločnosti MACH-TECH. Je veľkým prínosom pre združenie a majiteľov stratených zvierat a najbližšie ho čaká veľa aktivít spojených s lokalizovaním srnčej zvery na poliach pred začatím kosby, na ktoré využíva výhradne svoju techniku a materiál a to presne DJI MATRICE 4T s príslušenstvom. Marek lieta pre združenie od leta 2025.",
+      "Marek je rodákom z Novej Dubnice a jeho “revírom“ pátracích aktivít je široké okolie jeho bydliska smerujúce vyššie na sever, vďaka čomu dokáže prísť na pomoc napríklad aj do Považskej Bystrice. Je špičkový pilot, ktorý dokonca s dronmi podniká a venuje sa 3D skenovaniu, mapovaniu a ďalším aktivitám v spoločnosti MACH-TECH. Je veľkým prínosom pre združenie a majiteľov stratených zvierat a najbližšie ho čaká veľa aktivít spojených s lokalizovaním srnčej zveri na poliach pred začatím kosby, na ktoré využíva výhradne svoju techniku a materiál a to presne DJI MATRICE 4T s príslušenstvom. Marek lieta pre združenie od leta 2025.",
     imgPos: "center",
     imgPosMobile: "center 30%",
   },
@@ -74,6 +74,17 @@ export default function TeamGrid() {
   const [winW, setWinW] = useState<number>(
     typeof window === "undefined" ? 1280 : window.innerWidth
   );
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  useEffect(() => {
+    if (hasInteracted) return;
+
+    const interval = setInterval(() => {
+      setActive((i) => wrap(i + 1, members.length));
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [hasInteracted]);
 
   useEffect(() => {
     const onR = () => setWinW(window.innerWidth);
@@ -83,8 +94,15 @@ export default function TeamGrid() {
   }, []);
 
   const Mobile = () => {
-    const next = () => setActive((i) => wrap(i + 1, members.length));
-    const prev = () => setActive((i) => wrap(i - 1, members.length));
+    const next = () => {
+      setHasInteracted(true);
+      setActive((i) => wrap(i + 1, members.length));
+    };
+
+    const prev = () => {
+      setHasInteracted(true);
+      setActive((i) => wrap(i - 1, members.length));
+    };
 
     const startX = useRef<number | null>(null);
     const onTouchStart = (e: React.TouchEvent) => {
@@ -132,7 +150,10 @@ export default function TeamGrid() {
               {members.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setActive(i)}
+                  onClick={() => {
+                    setHasInteracted(true);
+                    setActive(i);
+                  }}
                   className={`h-2 rounded-full transition-all ${
                     i === active ? "w-6 bg-white" : "w-2 bg-white/35 hover:bg-white/55"
                   }`}
@@ -147,8 +168,15 @@ export default function TeamGrid() {
   };
 
   const Desktop = ({ winW }: { winW: number }) => {
-    const next = useCallback(() => setActive((i) => wrap(i + 1, members.length)), []);
-    const prev = useCallback(() => setActive((i) => wrap(i - 1, members.length)), []);
+    const next = () => {
+      setHasInteracted(true);
+      setActive((i) => wrap(i + 1, members.length));
+    };
+
+    const prev = () => {
+      setHasInteracted(true);
+      setActive((i) => wrap(i - 1, members.length));
+    };
 
     const ACTIVE_W = 900;
     const SIDE_W = 260;
@@ -275,7 +303,10 @@ export default function TeamGrid() {
                   ) : (
                     <button
                       type="button"
-                      onClick={() => setActive(i)}
+                      onClick={() => {
+                        setHasInteracted(true);
+                        setActive(i);
+                      }}
                       className="block w-full rounded-2xl overflow-hidden bg-white/[0.05] shadow-xl shadow-black/30 ring-1 ring-white/10 hover:bg-white/[0.08] transition"
                       aria-label={`Zvoliť ${m.name}`}
                     >

@@ -51,7 +51,7 @@ export default function Footer() {
             <div className="space-y-3">
               <h3 className="text-xl font-semibold">OZ Hľadáme Dronom</h3>
               <p className="text-white/70 leading-6">
-                Pátranie po nezvestných zvieratách a lokalizovanie srnčej zvery na poliach
+                Pátranie po nezvestných zvieratách a lokalizovanie srnčej zveri na poliach
                 pred začatím kosby pomocou termovíznych dronov.
               </p>
 
