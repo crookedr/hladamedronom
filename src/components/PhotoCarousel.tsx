@@ -90,8 +90,11 @@ export default function PhotoCarousel() {
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
   const [isHover, setIsHover] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
 
+  // NOVÉ: zistíme, či sme na desktope
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  const [showInfo, setShowInfo] = useState(false);
 
   const [lastInteraction, setLastInteraction] = useState<number>(
     () => Date.now() - INACTIVITY_RESUME_MS
@@ -123,6 +126,22 @@ export default function PhotoCarousel() {
     markInteraction();
     goPrev();
   }, [markInteraction, goPrev]);
+
+  // NOVÉ: sledujeme veľkosť okna a nastavíme isDesktop
+  useEffect(() => {
+    const update = () => {
+      // 768px ~ Tailwind "md" breakpoint = tablet/desktop
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  // NOVÉ: keď sa zmení režim (desktop/mobile), nastavíme default showInfo
+  useEffect(() => {
+    setShowInfo(isDesktop);
+  }, [isDesktop]);
 
   useEffect(() => {
     if (timer.current) clearInterval(timer.current);
@@ -159,9 +178,10 @@ export default function PhotoCarousel() {
     return () => window.removeEventListener("keydown", onKey);
   }, [goNext, goPrev, markInteraction]);
 
+  // UPRAVA: pri zmene fotky – na desktope automaticky ukáž popis, na mobile schovaj
   useEffect(() => {
-    setShowInfo(false);
-  }, [index]);
+    setShowInfo(isDesktop);
+  }, [index, isDesktop]);
 
   const onTouchStart = (e: React.TouchEvent) =>
     (touchStartX.current = e.touches[0].clientX);
