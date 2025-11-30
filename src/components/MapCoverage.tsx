@@ -50,27 +50,43 @@ function SetupPanes() {
 
 export default function MapCoverage() {
   const [mounted, setMounted] = useState(false);
+
   const [westLayer, setWestLayer] = useState<FeatureCollection<Geometry, DistrictProps> | null>(null);
   const [coveredLayer, setCoveredLayer] = useState<FeatureCollection<Geometry, DistrictProps> | null>(null);
   const [noDroneLayer, setNoDroneLayer] = useState<FeatureCollection<Geometry, DistrictProps> | null>(null);
   const [bratislavaLayer, setBratislavaLayer] = useState<FeatureCollection<Geometry, DistrictProps> | null>(null);
+
   const [error, setError] = useState<string | null>(null);
 
   const [height, setHeight] = useState<number>(380);
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLegendOpen, setIsLegendOpen] = useState(true);
+
+  // detect mobile + height responsive
   useEffect(() => {
     setMounted(true);
 
     const compute = () => {
       const w = window.innerWidth;
-      if (w < 640) return 380;
-      if (w < 1024) return 500;
-      return 600;
+
+      setIsMobile(w < 640);
+
+      if (w < 640) setHeight(380);
+      else if (w < 1024) setHeight(500);
+      else setHeight(600);
     };
-    const apply = () => setHeight(compute());
-    apply();
-    window.addEventListener("resize", apply, { passive: true });
-    return () => window.removeEventListener("resize", apply);
+
+    compute();
+    window.addEventListener("resize", compute, { passive: true });
+    return () => window.removeEventListener("resize", compute);
   }, []);
+
+  // legend behavior depending on device
+  useEffect(() => {
+    if (isMobile) setIsLegendOpen(false);
+    else setIsLegendOpen(true);
+  }, [isMobile]);
 
   const coveredNames = useMemo(
     () =>
@@ -122,6 +138,7 @@ export default function MapCoverage() {
     []
   );
 
+  // load districts
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -129,29 +146,6 @@ export default function MapCoverage() {
         const res = await fetch("/districts_epsg_4326.geojson", { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = (await res.json()) as FeatureCollection<Geometry, DistrictProps>;
-
-        const west: FeatureCollection<Geometry, DistrictProps> = {
-          type: "FeatureCollection",
-          features: data.features.filter((f) => {
-            const n = normalizeName(getDistrictNameRaw(f));
-            const isBA =
-              n === "bratislava i" ||
-              n === "bratislava ii" ||
-              n === "bratislava iii" ||
-              n === "bratislava iv" ||
-              n === "bratislava v" ||
-              n === "malacky" ||
-              n === "pezinok";
-            return westNames.includes(n) && !isBA;
-          }),
-        };
-
-        const covered: FeatureCollection<Geometry, DistrictProps> = {
-          type: "FeatureCollection",
-          features: data.features.filter((f) =>
-            coveredNames.includes(normalizeName(getDistrictNameRaw(f)))
-          ),
-        };
 
         const bratislavaNames = [
           "bratislava i",
@@ -162,6 +156,22 @@ export default function MapCoverage() {
           "malacky",
           "pezinok",
         ];
+
+        const west: FeatureCollection<Geometry, DistrictProps> = {
+          type: "FeatureCollection",
+          features: data.features.filter((f) => {
+            const n = normalizeName(getDistrictNameRaw(f));
+            const isBA = bratislavaNames.includes(n);
+            return westNames.includes(n) && !isBA;
+          }),
+        };
+
+        const covered: FeatureCollection<Geometry, DistrictProps> = {
+          type: "FeatureCollection",
+          features: data.features.filter((f) =>
+            coveredNames.includes(normalizeName(getDistrictNameRaw(f)))
+          ),
+        };
 
         const bratislava: FeatureCollection<Geometry, DistrictProps> = {
           type: "FeatureCollection",
@@ -180,29 +190,28 @@ export default function MapCoverage() {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
       }
     })();
+
     return () => {
       cancelled = true;
     };
   }, [westNames, coveredNames]);
 
+  // load no-drone zones
   useEffect(() => {
     let cancelled = false;
+
     (async () => {
       try {
         const res = await fetch("/nodronezones.geojson", { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = (await res.json()) as FeatureCollection<Geometry, DistrictProps>;
 
-        if (!cancelled) {
-          setNoDroneLayer(data);
-        }
+        const data = (await res.json()) as FeatureCollection<Geometry, DistrictProps>;
+        if (!cancelled) setNoDroneLayer(data);
       } catch (e) {
-        if (!cancelled) {
-          const msg = e instanceof Error ? e.message : String(e);
-          setError((prev) => prev ?? msg);
-        }
+        if (!cancelled) setError((prev) => prev ?? (e instanceof Error ? e.message : String(e)));
       }
     })();
+
     return () => {
       cancelled = true;
     };
@@ -230,7 +239,7 @@ export default function MapCoverage() {
     color: "#ef4444",
     weight: 2,
     opacity: 1,
-    fillColor: "#ef4444", 
+    fillColor: "#ef4444",
     fillOpacity: 0.35,
     stroke: true,
   };
@@ -239,13 +248,13 @@ export default function MapCoverage() {
 
   return (
     <div className="relative rounded-2xl overflow-hidden">
-        <MapContainer
-          center={[48.7, 19.7]}
-          zoom={8}        
-          scrollWheelZoom={false}
-          style={{ height: `${height}px`, width: "100%" }}
-          className="touch-pan-x touch-pan-y"
-        >
+      <MapContainer
+        center={[48.7, 19.7]}
+        zoom={8}
+        scrollWheelZoom={isMobile ? false : true}
+        style={{ height: `${height}px`, width: "100%" }}
+        className="touch-pan-x touch-pan-y"
+      >
         <SetupPanes />
 
         <TileLayer
@@ -256,44 +265,48 @@ export default function MapCoverage() {
 
         {westLayer && <GeoJSON data={westLayer} style={styleWest} pane="west" />}
         {coveredLayer && <GeoJSON data={coveredLayer} style={styleCovered} pane="covered" />}
-
         {bratislavaLayer && <GeoJSON data={bratislavaLayer} style={styleNoDrone} pane="nodrone" />}
-
         {noDroneLayer && <GeoJSON data={noDroneLayer} style={styleNoDrone} pane="nodrone" />}
       </MapContainer>
 
-      <div
-        className="pointer-events-auto absolute right-3 top-3 z-[500] rounded-xl bg-black/60 ring-1 ring-white/15 text-white/90 backdrop-blur px-3.5 py-3 shadow-lg shadow-black/30"
-        role="note"
-        aria-label="Legenda mapy pokrytia"
-      >
-        <div className="text-xs uppercase tracking-wider text-white/60 mb-2">Legenda</div>
-        <ul className="space-y-1.5 text-sm">
-          <li className="flex items-center gap-2">
-            <span
-              className="inline-block h-3 w-3 rounded-sm"
-              style={{ background: "#10b981" }}
-              aria-hidden="true"
-            />
-            <span>Aktívne pokrytie</span>
-          </li>
-          <li className="flex items-center gap-2">
-            <span
-              className="inline-block h-3 w-3 rounded-sm"
-              style={{ background: "#9ca3af" }}
-              aria-hidden="true"
-            />
-            <span>Pokrytie v rámci možností</span>
-          </li>
-          <li className="flex items-center gap-2">
-            <span
-              className="inline-block h-3 w-3 rounded-sm"
-              style={{ background: "#ef4444" }}
-              aria-hidden="true"
-            />
-            <span>Bezdronové zóny</span>
-          </li>
-        </ul>
+      {/* TLAČIDLO LEGENDY – IBA MOBILE */}
+      <div className="pointer-events-none absolute right-3 top-3 z-[500] flex flex-col items-end gap-2">
+
+        {isMobile && (
+          <button
+            type="button"
+            onClick={() => setIsLegendOpen((p) => !p)}
+            className="pointer-events-auto rounded-full bg-black/70 ring-1 ring-white/20 backdrop-blur px-3 py-1.5 text-xs font-medium uppercase tracking-wide text-white/90 shadow-md shadow-black/40 hover:bg-black/80 transition"
+            aria-expanded={isLegendOpen}
+            aria-controls="map-legend"
+          >
+            Legenda
+          </button>
+        )}
+
+        {isLegendOpen && (
+          <div
+            id="map-legend"
+            className="pointer-events-auto mt-1 rounded-xl bg-black/60 ring-1 ring-white/15 text-white/90 backdrop-blur px-3.5 py-3 shadow-lg shadow-black/30"
+            role="note"
+          >
+            <div className="text-xs uppercase tracking-wider text-white/60 mb-2">Legenda</div>
+            <ul className="space-y-1.5 text-sm">
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "#10b981" }} />
+                <span>Aktívne pokrytie</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "#9ca3af" }} />
+                <span>Pokrytie v rámci možností</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "#ef4444" }} />
+                <span>Bezdronové zóny</span>
+              </li>
+            </ul>
+          </div>
+        )}
       </div>
 
       {error && (
