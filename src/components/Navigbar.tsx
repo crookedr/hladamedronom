@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
-import logo from "/public/ozlogo.png";
 
 type NavItem = { label: string; href: string };
 
@@ -83,7 +82,14 @@ export default function Navigbar() {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 flex-shrink-0">
-          <Image src={logo} alt="OZ logo" width={36} height={36} className="rounded-full" />
+          <Image
+            src="/ozlogo.png" 
+            alt="OZ logo"
+            width={36}
+            height={36}
+            className="rounded-full"
+            priority
+          />
           <span className="font-semibold tracking-tight">Hľadáme Dronom</span>
         </Link>
 
@@ -117,15 +123,27 @@ export default function Navigbar() {
         <button
           className="md:hidden inline-flex items-center justify-center rounded-xl p-2 ring-1 ring-white/15 hover:bg-white/10 transition"
           aria-expanded={open}
-          aria-label={open ? 'Zavrieť menu' : 'Otvoriť menu'}
+          aria-label={open ? "Zavrieť menu" : "Otvoriť menu"}
           onClick={() => setOpen((v) => !v)}
         >
           {open ? (
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path strokeLinecap="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           ) : (
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path strokeLinecap="round" d="M3 6h18M3 12h18M3 18h18" />
             </svg>
           )}
