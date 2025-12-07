@@ -60,19 +60,29 @@ const STEPS: Step[] = [
   },
 ];
 
+const PATH_D = `
+  M 40 220
+  C 260 90, 430 90, 560 180
+  S 900 95, 1080 165
+  S 1160 205, 1160 205
+`;
+
 export default function PostupInteractive() {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const pathRef = useRef<SVGPathElement | null>(null);
 
   const [pts, setPts] = useState<Pt[]>([]);
   const [active, setActive] = useState<number | null>(null);
+  const [hovered, setHovered] = useState<number | null>(null);
   const [modalTop, setModalTop] = useState<number | null>(null);
+  const [pathLength, setPathLength] = useState<number | null>(null);
 
   const recomputePts = useMemo(
     () => () => {
       const p = pathRef.current;
       if (!p) return;
       const L = p.getTotalLength();
+      setPathLength(L);
       setPts(
         STEPS.map((s) => {
           const pt = p.getPointAtLength(L * s.t);
@@ -129,6 +139,13 @@ export default function PostupInteractive() {
   const toLeftPct = (x: number) => `${(x / VB_W) * 100}%`;
   const toTopPct = (y: number) => `${(y / VB_H) * 100}%`;
 
+  const visibleLen =
+    hovered !== null && pathLength !== null
+      ? hovered === STEPS.length - 1
+        ? pathLength
+        : pathLength * STEPS[hovered].t
+      : null;
+
   return (
     <section
       id="postup"
@@ -157,19 +174,46 @@ export default function PostupInteractive() {
             viewBox={`0 0 ${VB_W} ${VB_H}`}
             preserveAspectRatio="none"
           >
+            <defs>
+              <filter id="postup-glow">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
             <path
               ref={pathRef}
-              d="
-                M 40 220
-                C 260 90, 430 90, 560 180
-                S 900 95, 1080 165
-                S 1160 205, 1160 205
-              "
+              d={PATH_D}
               fill="none"
-              stroke="rgba(255,255,255,0.60)"
+              stroke="rgba(255,255,255,0.35)"
               strokeWidth="2"
               strokeDasharray="7 10"
             />
+
+            <AnimatePresence>
+              {visibleLen !== null && pathLength !== null && (
+                <motion.path
+                  key={hovered}
+                  d={PATH_D}
+                  fill="none"
+                  stroke="rgba(255,255,255,0.95)"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  filter="url(#postup-glow)"
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: 1,
+                    strokeDasharray: `${visibleLen} ${pathLength}`,
+                    strokeDashoffset: 0,
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                />
+              )}
+            </AnimatePresence>
 
             {Array.from({ length: 8 }).map((_, i) => (
               <ArrowAlongPath key={i} pathRef={pathRef} t={0.08 + i * 0.11} />
@@ -179,6 +223,8 @@ export default function PostupInteractive() {
           {pts.length === STEPS.length &&
             STEPS.map((s, i) => {
               const isOpen = active === i;
+              const isHovered = hovered === i;
+
               return (
                 <div
                   key={s.n}
@@ -189,21 +235,49 @@ export default function PostupInteractive() {
                     transform: "translate(-50%, -50%)",
                   }}
                 >
-                  <button
-                    onClick={() => setActive(isOpen ? null : i)}
-                    aria-haspopup="dialog"
-                    aria-expanded={isOpen}
-                    className="
-                      grid place-items-center
-                      h-10 w-10 text-sm
-                      sm:h-11 sm:w-11 sm:text-base
-                      rounded-full bg-white text-black font-bold
-                      ring-1 ring-white/30 shadow shadow-black/30
-                      active:scale-95 transition
-                    "
-                  >
-                    {s.n}
-                  </button>
+                  <div className="relative">
+                    <AnimatePresence>
+                      {isHovered && (
+                        <motion.span
+                          className="pointer-events-none absolute inset-0 rounded-full bg-white/15"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1.4 }}
+                          exit={{ opacity: 0, scale: 1.1 }}
+                          transition={{ duration: 0.25, ease: "easeOut" }}
+                        />
+                      )}
+                    </AnimatePresence>
+
+                    <motion.button
+                      onClick={() => setActive(isOpen ? null : i)}
+                      onMouseEnter={() => setHovered(i)}
+                      onMouseLeave={() =>
+                        setHovered((prev) => (prev === i ? null : prev))
+                      }
+                      aria-haspopup="dialog"
+                      aria-expanded={isOpen}
+                      className="
+                        relative z-10
+                        grid place-items-center
+                        h-10 w-10 text-sm
+                        sm:h-11 sm:w-11 sm:text-base
+                        rounded-full bg-white text-black font-bold
+                        ring-1 ring-white/40 shadow shadow-black/40
+                        cursor-pointer
+                        transition
+                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white
+                      "
+                      whileHover={{
+                        scale: 1.12,
+                      }}
+                      whileTap={{
+                        scale: 0.9,
+                      }}
+                      transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                    >
+                      {s.n}
+                    </motion.button>
+                  </div>
                 </div>
               );
             })}
@@ -234,7 +308,7 @@ export default function PostupInteractive() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.98 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              onClick={() => setActive(null)} // klik na kartu tiež zavrie
+              onClick={() => setActive(null)}
             >
               <div className="rounded-2xl bg-white/10 ring-1 ring-white/15 shadow-2xl shadow-black/40 px-5 py-5 sm:px-6 sm:py-6">
                 <div className="flex items-start justify-between gap-4">
