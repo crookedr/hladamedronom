@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import ozLogo from "/public/ozlogo.png";
 
 export default function Hero() {
   return (
@@ -9,9 +8,9 @@ export default function Hero() {
       <video
         className="
           absolute inset-0 h-full w-full z-0 object-cover
-          object-[80%_50%]       /* mobily: posun doprava (X=80%, Y=50%) */
-          sm:object-[75%_50%]    /* menšie tablety: jemnejšie doprava */
-          md:object-[50%_50%]    /* od md+: späť do stredu */
+          object-[80%_50%]
+          sm:object-[75%_50%]
+          md:object-[50%_50%]
         "
         src="/search-mission.mp4"
         autoPlay
@@ -25,8 +24,10 @@ export default function Hero() {
       <div className="relative z-20 text-center px-6 max-w-3xl animate-fade-in">
         <div className="flex flex-col items-center mb-6">
           <Image
-            src={ozLogo}
+            src="/ozlogo.png"
             alt="Logo OZ"
+            width={144}
+            height={144}
             className="w-36 h-36 object-contain drop-shadow-xl"
             priority
           />
