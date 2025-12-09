@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import PageTransition from "@/components/PageTransition";
+import Cookiebanner from "@/components/Cookiebanner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="sk">
         <body className={`${inter.className} bg-[#0b0d10] text-white antialiased overflow-x-hidden overflow-y-auto`}>
         <PageTransition>{children}</PageTransition>
+        <Cookiebanner />
       </body>
     </html>
   );
