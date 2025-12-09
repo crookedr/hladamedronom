@@ -34,13 +34,10 @@ export default function Cookiebanner() {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     } catch {
-      // ignore
     }
     setConsent(next);
     setIsOpen(false);
 
-    // sem môžeš dať init analytics, napr.:
-    // if (next.analytics) initAnalytics();
   }
 
   function acceptAll() {
@@ -55,7 +52,6 @@ export default function Cookiebanner() {
 
   return (
     <>
-      {/* malé plávajúce tlačidlo na zmenu nastavení po udelení súhlasu */}
       {consent && !isOpen && (
         <button
           onClick={() => setIsOpen(true)}
@@ -65,9 +61,8 @@ export default function Cookiebanner() {
         </button>
       )}
 
-      {/* hlavný banner / modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center pointer-events-none">
+        <div className="fixed inset-0 z-[9999] flex items-end justify-center pointer-events-none">
           <div className="pointer-events-auto w-full md:max-w-xl mx-4 mb-4 md:mb-0 rounded-2xl bg-[rgb(18,18,18)]/95 border border-white/10 shadow-xl p-5 md:p-6">
             <div className="flex flex-col gap-3">
               <h2 className="text-lg font-semibold">Používame cookies</h2>

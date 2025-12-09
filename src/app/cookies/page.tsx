@@ -1,4 +1,3 @@
-// src/app/cookies/page.tsx
 export default function CookiesPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-20">

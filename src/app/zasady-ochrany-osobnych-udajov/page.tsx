@@ -1,4 +1,3 @@
-// src/app/zasady-ochrany-osobnych-udajov/page.tsx
 export default function ZasadyOchranyOsobnychUdajov() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-20">
