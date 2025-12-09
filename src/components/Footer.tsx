@@ -34,6 +34,7 @@ export default function Footer() {
       setCopied(true);
       setTimeout(() => setCopied(false), 1300);
     } catch {
+      // ignore
     }
   }, []);
 
@@ -170,9 +171,28 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10">
-          <div className="mx-auto max-w-7xl px-10 py-4 flex flex-col gap-1.5 md:flex-row md:items-center md:justify-between text-sm">
-            <p className="text-white/60">© {new Date().getFullYear()} OZ Hľadáme Dronom</p>
-            <p className="text-white/50">Vytvorené s láskou.</p>
+          <div className="mx-auto max-w-7xl px-10 py-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between text-sm">
+            <p className="text-white/60">
+              © {new Date().getFullYear()} OZ Hľadáme Dronom
+            </p>
+
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-white/55">
+              <a
+                href="/zasady-ochrany-osobnych-udajov"
+                className="hover:text-white/90 underline-offset-4 hover:underline transition"
+              >
+                Zásady ochrany osobných údajov (GDPR)
+              </a>
+
+              <a
+                href="/cookies"
+                className="hover:text-white/90 underline-offset-4 hover:underline transition"
+              >
+                Cookies
+              </a>
+
+              <p className="text-white/55">Vytvorené s láskou.</p>
+            </div>
           </div>
         </div>
       </div>
