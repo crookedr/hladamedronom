@@ -139,31 +139,40 @@ export default function Footer() {
               <h4 className="text-sm uppercase tracking-wider text-white/60">Sledujte nás</h4>
               <div className="mt-4 flex items-center gap-4">
                 <a
-                  href="https://www.facebook.com/profile.php?id=61557228685729"
+                  href="https://www.facebook.com/hladamedronom/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
                   className="group inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-black/30 hover:bg-black/20 transition"
                 >
-                  <FaFacebook className="text-xl text-white/80 group-hover:text-white" />
+                  <FaFacebook className="text-xl text-white/80 group-hover:text-blue-200" />
                 </a>
                 <a
-                  href="https://www.instagram.com/ozhladamedronom/"
+                  href="https://www.instagram.com/hladamedronom/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
                   className="group inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-black/30 hover:bg-black/20 transition"
                 >
-                  <FaInstagram className="text-xl text-white/80 group-hover:text-white" />
+                  <FaInstagram className="text-xl text-white/80 group-hover:text-pink-300" />
                 </a>
                 <a
-                  href="https://www.youtube.com/watch?v=oELEBVXgLwU"
+                  href="https://www.youtube.com/@HladameDronom"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="YouTube"
                   className="group inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-black/30 hover:bg-black/20 transition"
                 >
                   <FaYoutube className="text-xl text-white/80 group-hover:text-red-500 transition-colors duration-200" />
+                </a>
+                <a
+                  href="https://www.youtube.com/watch?v=oELEBVXgLwU"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Zverissimo"
+                  className="group inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-black/30 hover:bg-black/20 transition"
+                >
+                  <FaYoutube className="text-xl text-white/80 group-hover:text-yellow-500 transition-colors duration-200" />
                 </a>
               </div>
             </div>
