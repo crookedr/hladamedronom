@@ -12,6 +12,7 @@ export default function Hero() {
         muted
         loop
         playsInline
+        preload="metadata"
       >
         <source src="/search-mission.mp4" type="video/mp4" />
       </video>

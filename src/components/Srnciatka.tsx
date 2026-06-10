@@ -127,6 +127,7 @@ export default function Srnciatka() {
             muted
             loop
             playsInline
+            preload="metadata"
             className="absolute inset-0 h-full w-full object-cover object-center"
           />
         </motion.div>
@@ -330,6 +331,7 @@ export default function Srnciatka() {
           muted
           loop
           playsInline
+          preload="none"
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
         <div
