@@ -51,7 +51,7 @@ const members: Member[] = [
     role: "Dronista",
     img: "/team/05.webp",
     bio:
-      "Marek je rodákom z Novej Dubnice a jeho “revírom“ pátracích aktivít je široké okolie jeho bydliska smerujúce vyššie na sever, vďaka čomu dokáže prísť na pomoc napríklad aj do Považskej Bystrice. Je špičkový pilot, ktorý dokonca s dronmi podniká a venuje sa 3D skenovaniu, mapovaniu a ďalším aktivitám v spoločnosti MACH-TECH. Je veľkým prínosom pre združenie a majiteľov stratených zvierat a najbližšie ho čaká veľa aktivít spojených s lokalizovaním srnčej zveri na poliach pred začatím kosby, na ktoré využíva výhradne svoju techniku a materiál a to presne DJI MATRICE 4T s príslušenstvom. Marek lieta pre združenie od leta 2025.",
+      "Marek je rodákom z Novej Dubnice a jeho \"revírom\" pátracích aktivít je široké okolie jeho bydliska smerujúce vyššie na sever, vďaka čomu dokáže prísť na pomoc napríklad aj do Považskej Bystrice. Je špičkový pilot, ktorý dokonca s dronmi podniká a venuje sa 3D skenovaniu, mapovaniu a ďalším aktivitám v spoločnosti MACH-TECH. Je veľkým prínosom pre združenie a majiteľov stratených zvierat a najbližšie ho čaká veľa aktivít spojených s lokalizovaním srnčej zveri na poliach pred začatím kosby, na ktoré využíva výhradne svoju techniku a materiál a to presne DJI MATRICE 4T s príslušenstvom. Marek lieta pre združenie od leta 2025.",
     imgPos: "center",
     imgPosMobile: "center 30%",
   },
@@ -69,6 +69,258 @@ function wrap(i: number, len: number) {
   return ((i % len) + len) % len;
 }
 
+const ACTIVE_W = 900;
+const SIDE_W = 260;
+const SAFE_GAP = 40;
+const SIDE_GAP = 18;
+const CANVAS_H = 680;
+
+type SharedProps = {
+  active: number;
+  setActive: React.Dispatch<React.SetStateAction<number>>;
+  onInteract: () => void;
+};
+
+function MobileView({ active, setActive, onInteract }: SharedProps) {
+  const startX = useRef<number | null>(null);
+
+  const next = () => {
+    onInteract();
+    setActive((i) => wrap(i + 1, members.length));
+  };
+  const prev = () => {
+    onInteract();
+    setActive((i) => wrap(i - 1, members.length));
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (startX.current == null) return;
+    const dx = e.changedTouches[0].clientX - startX.current;
+    startX.current = null;
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) next();
+      else prev();
+    }
+  };
+
+  const m = members[active];
+
+  return (
+    <section className="md:hidden px-6">
+      <div
+        className="rounded-2xl overflow-hidden bg-white/[0.04] ring-1 ring-white/15 shadow-2xl shadow-black/40"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        <div className="relative w-full aspect-[4/5] bg-black/40">
+          <Image
+            src={m.img}
+            alt={m.name}
+            fill
+            sizes="100vw"
+            priority
+            style={{
+              objectFit: "cover",
+              objectPosition: m.imgPosMobile ?? m.imgPos ?? "center",
+            }}
+          />
+        </div>
+
+        <div className="p-5">
+          <h3 className="text-2xl font-semibold">{m.name}</h3>
+          <p className="text-white/60 mt-1">{m.role}</p>
+          <p className="mt-3 text-white/80 leading-7">{m.bio}</p>
+
+          <div className="mt-5 flex items-center justify-center gap-2">
+            {members.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  onInteract();
+                  setActive(i);
+                }}
+                className={`cursor-pointer h-2 rounded-full transition-all ${
+                  i === active ? "w-6 bg-white" : "w-2 bg-white/35 hover:bg-white/55"
+                }`}
+                aria-label={`Zvoliť ${i + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DesktopView({
+  active,
+  setActive,
+  onInteract,
+  winW,
+}: SharedProps & { winW: number }) {
+  const next = () => {
+    onInteract();
+    setActive((i) => wrap(i + 1, members.length));
+  };
+  const prev = () => {
+    onInteract();
+    setActive((i) => wrap(i - 1, members.length));
+  };
+
+  const positions = useMemo(() => {
+    const half = winW / 2;
+    const margin = 16;
+    const leftEdgeCenter = -half + margin + SIDE_W / 2;
+    const rightEdgeCenter = half - margin - SIDE_W / 2;
+
+    const leftInnerByEdge = leftEdgeCenter + SIDE_W + SIDE_GAP;
+    const rightInnerByEdge = rightEdgeCenter - SIDE_W - SIDE_GAP;
+
+    const leftInnerBySafe = -(ACTIVE_W / 2) - SAFE_GAP - SIDE_W / 2;
+    const rightInnerBySafe = ACTIVE_W / 2 + SAFE_GAP + SIDE_W / 2;
+
+    const leftInner = Math.min(leftInnerByEdge, leftInnerBySafe);
+    const rightInner = Math.max(rightInnerByEdge, rightInnerBySafe);
+
+    return {
+      "-2": leftEdgeCenter,
+      "-1": leftInner,
+      "0": 0,
+      "1": rightInner,
+      "2": rightEdgeCenter,
+    } as const;
+  }, [winW]);
+
+  const sideCount = winW >= 1024 ? 2 : 1;
+
+  const getDelta = (i: number) => {
+    const right = wrap(i - active, members.length);
+    const left = right - members.length;
+    return Math.abs(left) < right ? left : right;
+  };
+
+  return (
+    <section
+      className="hidden md:block relative w-screen overflow-hidden left-1/2 -translate-x-1/2"
+      aria-roledescription="carousel"
+      aria-label="Náš tím"
+    >
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#0b0d10] to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#0b0d10] to-transparent" />
+
+      <div className="absolute inset-y-0 left-0 z-50 flex items-center pl-3">
+        <button
+          type="button"
+          onClick={prev}
+          className="cursor-pointer h-12 w-12 rounded-full ring-1 ring-white/20 bg-black/50 hover:bg-black/70 transition grid place-items-center"
+          aria-label="Predchádzajúci"
+        >
+          ←
+        </button>
+      </div>
+      <div className="absolute inset-y-0 right-0 z-50 flex items-center pr-3">
+        <button
+          type="button"
+          onClick={next}
+          className="cursor-pointer h-12 w-12 rounded-full ring-1 ring-white/20 bg-black/50 hover:bg-black/70 transition grid place-items-center"
+          aria-label="Ďalší"
+        >
+          →
+        </button>
+      </div>
+
+      <div className="relative mx-auto w-full" style={{ height: CANVAS_H }}>
+        <AnimatePresence initial={false}>
+          {members.map((m, i) => {
+            const d = getDelta(i);
+            if (Math.abs(d) > sideCount) return null;
+
+            const isActive = d === 0;
+
+            let x = 0;
+            if (d === -2) x = positions["-2"];
+            else if (d === -1) x = positions["-1"];
+            else if (d === 1) x = positions["1"];
+            else if (d === 2) x = positions["2"];
+            else x = positions["0"];
+
+            const scale = isActive ? 1 : 0.92;
+            const opacity = isActive ? 1 : 0.6;
+            const z = isActive ? 60 : Math.abs(d) === 1 ? 40 : 30;
+
+            return (
+              <motion.article
+                key={m.name}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 will-change-transform"
+                style={{
+                  zIndex: z,
+                  width: isActive ? ACTIVE_W : SIDE_W,
+                  maxWidth: "92vw",
+                }}
+                initial={{ x, scale, opacity }}
+                animate={{ x, scale, opacity }}
+                transition={{ type: "spring", stiffness: 260, damping: 26, mass: 0.8 }}
+                aria-roledescription={isActive ? "slide" : undefined}
+                aria-label={`${m.name} – ${m.role}`}
+              >
+                {isActive ? (
+                  <div className="rounded-2xl overflow-hidden bg-white/[0.04] shadow-2xl shadow-black/40 ring-1 ring-white/15">
+                    <div className="grid md:grid-cols-2">
+                      <div className="relative h-[560px] bg-black/40">
+                        <Image
+                          src={m.img}
+                          alt={m.name}
+                          fill
+                          style={{ objectFit: "cover", objectPosition: m.imgPos ?? "center" }}
+                          sizes="520px"
+                          priority
+                        />
+                      </div>
+                      <div className="p-8">
+                        <h3 className="text-3xl font-semibold">{m.name}</h3>
+                        <p className="text-white/60 mt-1">{m.role}</p>
+                        <p className="mt-4 text-white/80 leading-7">{m.bio}</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onInteract();
+                      setActive(i);
+                    }}
+                    className="cursor-pointer block w-full rounded-2xl overflow-hidden bg-white/[0.05] shadow-xl shadow-black/30 ring-1 ring-white/10 hover:bg-white/[0.08] transition"
+                    aria-label={`Zvoliť ${m.name}`}
+                  >
+                    <div className="relative w-full h-[320px] bg-black/40">
+                      <Image
+                        src={m.img}
+                        alt={m.name}
+                        fill
+                        style={{ objectFit: "cover", objectPosition: m.imgPos ?? "center" }}
+                        sizes="260px"
+                        className="grayscale"
+                      />
+                    </div>
+                    <div className="p-3 text-left">
+                      <h4 className="font-semibold text-white/85 line-clamp-1">{m.name}</h4>
+                      <p className="text-white/60 text-sm line-clamp-1">{m.role}</p>
+                    </div>
+                  </button>
+                )}
+              </motion.article>
+            );
+          })}
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+}
+
 export default function TeamGrid() {
   const [active, setActive] = useState(0);
   const [winW, setWinW] = useState<number>(
@@ -76,13 +328,13 @@ export default function TeamGrid() {
   );
   const [hasInteracted, setHasInteracted] = useState(false);
 
+  const onInteract = () => setHasInteracted(true);
+
   useEffect(() => {
     if (hasInteracted) return;
-
     const interval = setInterval(() => {
       setActive((i) => wrap(i + 1, members.length));
     }, 10000);
-
     return () => clearInterval(interval);
   }, [hasInteracted]);
 
@@ -93,252 +345,10 @@ export default function TeamGrid() {
     return () => window.removeEventListener("resize", onR);
   }, []);
 
-  const Mobile = () => {
-    const next = () => {
-      setHasInteracted(true);
-      setActive((i) => wrap(i + 1, members.length));
-    };
-
-    const prev = () => {
-      setHasInteracted(true);
-      setActive((i) => wrap(i - 1, members.length));
-    };
-
-    const startX = useRef<number | null>(null);
-    const onTouchStart = (e: React.TouchEvent) => {
-      startX.current = e.touches[0].clientX;
-    };
-    const onTouchEnd = (e: React.TouchEvent) => {
-      if (startX.current == null) return;
-      const dx = e.changedTouches[0].clientX - startX.current;
-      startX.current = null;
-      if (Math.abs(dx) > 40) {
-        if (dx < 0) next();
-        else prev();
-      }
-    };
-
-    const m = members[active];
-
-    return (
-      <section className="md:hidden px-6">
-        <div
-          className="rounded-2xl overflow-hidden bg-white/[0.04] ring-1 ring-white/15 shadow-2xl shadow-black/40"
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-        >
-          <div className="relative w-full aspect-[4/5] bg-black/40">
-            <Image
-              src={m.img}
-              alt={m.name}
-              fill
-              sizes="100vw"
-              priority
-              style={{
-                objectFit: "cover",
-                objectPosition: m.imgPosMobile ?? m.imgPos ?? "center",
-              }}
-            />
-          </div>
-
-          <div className="p-5">
-            <h3 className="text-2xl font-semibold">{m.name}</h3>
-            <p className="text-white/60 mt-1">{m.role}</p>
-            <p className="mt-3 text-white/80 leading-7">{m.bio}</p>
-
-            <div className="mt-5 flex items-center justify-center gap-2">
-              {members.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    setHasInteracted(true);
-                    setActive(i);
-                  }}
-                  className={`h-2 rounded-full transition-all ${
-                    i === active ? "w-6 bg-white" : "w-2 bg-white/35 hover:bg-white/55"
-                  }`}
-                  aria-label={`Zvoliť ${i + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  };
-
-  const Desktop = ({ winW }: { winW: number }) => {
-    const next = () => {
-      setHasInteracted(true);
-      setActive((i) => wrap(i + 1, members.length));
-    };
-
-    const prev = () => {
-      setHasInteracted(true);
-      setActive((i) => wrap(i - 1, members.length));
-    };
-
-    const ACTIVE_W = 900;
-    const SIDE_W = 260;
-    const SAFE_GAP = 40;
-    const SIDE_GAP = 18;
-    const CANVAS_H = 680;
-
-    const positions = useMemo(() => {
-      const half = winW / 2;
-      const margin = 16;
-      const leftEdgeCenter = -half + margin + SIDE_W / 2;
-      const rightEdgeCenter = half - margin - SIDE_W / 2;
-
-      const leftInnerByEdge = leftEdgeCenter + SIDE_W + SIDE_GAP;
-      const rightInnerByEdge = rightEdgeCenter - SIDE_W - SIDE_GAP;
-
-      const leftInnerBySafe = -(ACTIVE_W / 2) - SAFE_GAP - SIDE_W / 2;
-      const rightInnerBySafe = ACTIVE_W / 2 + SAFE_GAP + SIDE_W / 2;
-
-      const leftInner = Math.min(leftInnerByEdge, leftInnerBySafe);
-      const rightInner = Math.max(rightInnerByEdge, rightInnerBySafe);
-
-      return {
-        "-2": leftEdgeCenter,
-        "-1": leftInner,
-        "0": 0,
-        "1": rightInner,
-        "2": rightEdgeCenter,
-      } as const;
-    }, [winW]);
-
-    const sideCount = winW >= 1024 ? 2 : 1;
-
-    const getDelta = (i: number) => {
-      const right = wrap(i - active, members.length);
-      const left = right - members.length;
-      return Math.abs(left) < right ? left : right;
-    };
-
-    return (
-      <section
-        className="hidden md:block relative w-screen overflow-hidden left-1/2 -translate-x-1/2"
-        aria-roledescription="carousel"
-        aria-label="Náš tím"
-      >
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#0b0d10] to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#0b0d10] to-transparent" />
-
-        <div className="absolute inset-y-0 left-0 z-50 flex items-center pl-3">
-          <button
-            type="button"
-            onClick={prev}
-            className="h-12 w-12 rounded-full ring-1 ring-white/20 bg-black/50 hover:bg-black/70 transition grid place-items-center"
-            aria-label="Predchádzajúci"
-          >
-            ←
-          </button>
-        </div>
-        <div className="absolute inset-y-0 right-0 z-50 flex items-center pr-3">
-          <button
-            type="button"
-            onClick={next}
-            className="h-12 w-12 rounded-full ring-1 ring-white/20 bg-black/50 hover:bg-black/70 transition grid place-items-center"
-            aria-label="Ďalší"
-          >
-            →
-          </button>
-        </div>
-
-        <div className="relative mx-auto w-full" style={{ height: CANVAS_H }}>
-          <AnimatePresence initial={false}>
-            {members.map((m, i) => {
-              const d = getDelta(i);
-              if (Math.abs(d) > sideCount) return null;
-
-              const isActive = d === 0;
-
-              let x = 0;
-              if (d === -2) x = positions["-2"];
-              else if (d === -1) x = positions["-1"];
-              else if (d === 1) x = positions["1"];
-              else if (d === 2) x = positions["2"];
-              else x = positions["0"];
-
-              const scale = isActive ? 1 : 0.92;
-              const opacity = isActive ? 1 : 0.6;
-              const z = isActive ? 60 : Math.abs(d) === 1 ? 40 : 30;
-
-              return (
-                <motion.article
-                  key={m.name}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 will-change-transform"
-                  style={{
-                    zIndex: z,
-                    width: isActive ? ACTIVE_W : SIDE_W,
-                    maxWidth: "92vw",
-                  }}
-                  initial={{ x, scale, opacity }}
-                  animate={{ x, scale, opacity }}
-                  transition={{ type: "spring", stiffness: 260, damping: 26, mass: 0.8 }}
-                  aria-roledescription={isActive ? "slide" : undefined}
-                  aria-label={`${m.name} – ${m.role}`}
-                >
-                  {isActive ? (
-                    <div className="rounded-2xl overflow-hidden bg-white/[0.04] shadow-2xl shadow-black/40 ring-1 ring-white/15">
-                      <div className="grid md:grid-cols-2">
-                        <div className="relative h-[560px] bg-black/40">
-                          <Image
-                            src={m.img}
-                            alt={m.name}
-                            fill
-                            style={{ objectFit: "cover", objectPosition: m.imgPos ?? "center" }}
-                            sizes="520px"
-                            priority
-                          />
-                        </div>
-                        <div className="p-8">
-                          <h3 className="text-3xl font-semibold">{m.name}</h3>
-                          <p className="text-white/60 mt-1">{m.role}</p>
-                          <p className="mt-4 text-white/80 leading-7">{m.bio}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setHasInteracted(true);
-                        setActive(i);
-                      }}
-                      className="block w-full rounded-2xl overflow-hidden bg-white/[0.05] shadow-xl shadow-black/30 ring-1 ring-white/10 hover:bg-white/[0.08] transition"
-                      aria-label={`Zvoliť ${m.name}`}
-                    >
-                      <div className="relative w-full h-[320px] bg-black/40">
-                        <Image
-                          src={m.img}
-                          alt={m.name}
-                          fill
-                          style={{ objectFit: "cover", objectPosition: m.imgPos ?? "center" }}
-                          sizes="260px"
-                          className="grayscale"
-                        />
-                      </div>
-                      <div className="p-3 text-left">
-                        <h4 className="font-semibold text-white/85 line-clamp-1">{m.name}</h4>
-                        <p className="text-white/60 text-sm line-clamp-1">{m.role}</p>
-                      </div>
-                    </button>
-                  )}
-                </motion.article>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      </section>
-    );
-  };
-
   return (
     <>
-      <Mobile />
-      <Desktop winW={winW} />
+      <MobileView active={active} setActive={setActive} onInteract={onInteract} />
+      <DesktopView active={active} setActive={setActive} onInteract={onInteract} winW={winW} />
     </>
   );
 }

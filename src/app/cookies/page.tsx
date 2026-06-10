@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cookies",
+  robots: { index: false, follow: false },
+};
+
 export default function CookiesPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-20">
@@ -38,7 +45,7 @@ export default function CookiesPage() {
       </h2>
       <p className="text-white/80 mb-4">
         Vašu voľbu ohľadom cookies môžete kedykoľvek zmeniť pomocou tlačidla{" "}
-        <strong>„Spravovať cookies“</strong>, ktoré sa zobrazuje v dolnej časti
+        <strong>&ldquo;Spravovať cookies&rdquo;</strong>, ktoré sa zobrazuje v dolnej časti
         obrazovky, alebo úpravou nastavení vo vašom webovom prehliadači.
       </p>
 

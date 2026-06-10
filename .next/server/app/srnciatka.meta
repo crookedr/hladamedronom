@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/srnciatka/layout,_N_T_/srnciatka/page,_N_T_/srnciatka"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/srnciatka/__PAGE__",
+    "/srnciatka",
+    "/_index",
+    "/_head"
+  ]
+}

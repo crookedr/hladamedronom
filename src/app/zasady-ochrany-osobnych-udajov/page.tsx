@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Zásady ochrany osobných údajov",
+  robots: { index: false, follow: false },
+};
+
 export default function ZasadyOchranyOsobnychUdajov() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-20">
@@ -94,7 +101,7 @@ export default function ZasadyOchranyOsobnychUdajov() {
       <ul className="list-disc list-inside text-white/80 mb-4 space-y-1">
         <li>právo na prístup k svojim osobným údajom,</li>
         <li>právo na opravu nepresných alebo neúplných údajov,</li>
-        <li>právo na vymazanie („právo na zabudnutie“),</li>
+        <li>právo na vymazanie („právo na zabudnutie"),</li>
         <li>právo na obmedzenie spracúvania,</li>
         <li>právo namietať proti spracúvaniu,</li>
         <li>právo na prenositeľnosť údajov, ak je to technicky možné,</li>

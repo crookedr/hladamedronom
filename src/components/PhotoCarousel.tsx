@@ -1,91 +1,57 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 
 type Slide = { src: string; alt: string; w: number; h: number; desc: string };
 const AUTO_DELAY = 8000;
 const INACTIVITY_RESUME_MS = 60_000;
 
+const slides: Slide[] = [
+    {
+    src: "/gallery/gal11.webp",
+    alt: "Školenie pilotov a FPV",
+    w: 1600,
+    h: 1067,
+    desc:
+      "Naši dronisti sa zúčastnili veľmi prínosného školenia, ktorého školiteľom bol skúsený pilot Marek Krchňák. Vďaka jeho odborným radám a praktickým ukážkam sme získali cenné poznatky, ktoré nám pomôžu ešte efektívnejšie využívať naše drony pri pátracích akciách. Video zo školenia nájdete na našom YouTube. Ďakujeme, Marek.",
+  },
+  {
+    src: "/gallery/gal05.webp",
+    alt: "Lokalizovanie srnčiat",
+    w: 1600,
+    h: 1067,
+    desc:
+      "Pred začatím kosby je veľmi dôležité danú lúku skontrolovať dronmi, ktoré pomocou termovízie vidia aj do vysokého porastu. Vďaka tejto aktivite dokážeme zachrániť desiatky nevinných mladých srnčiat.",
+  },
+  {
+    src: "/gallery/gal07.webp",
+    alt: "Podpora od dobrovoľných hasičov",
+    w: 1600,
+    h: 1067,
+    desc:
+      "Bolo horúco a kone potrebovali vodu. DHZ Hlohovec prišli a zabezpečili pitný režim pre všetky kone.",
+  },
+  {
+    src: "/gallery/gal08.webp",
+    alt: "Spolupráca je veľmi dôležitá!",
+    w: 1600,
+    h: 1067,
+    desc:
+      "V spolupráci s civilnou ochranou sme dokázali pátrať až so štyrmi termovíznymi dronmi naraz. Vďaka tomu sme dôkladne prezreli obrovskú oblasť.",
+  },
+  {
+    src: "/gallery/gal09.webp",
+    alt: "Kosiť až po kontrole",
+    w: 1600,
+    h: 1067,
+    desc:
+      "Traktori s kosačkami dostávajú zelenú od našich pilotov až po kvalitnej kontrole poľa.",
+  },
+];
+
 export default function PhotoCarousel() {
-  const slides: Slide[] = useMemo(
-    () => [
-      {
-        src: "/gallery/gal01.webp",
-        alt: "Šťastní majitelia",
-        w: 1600,
-        h: 1067,
-        desc:
-          "Naša prvá úspešná akcia! Po príchode na miesto sme našli pomocou dronu s termovíziou psíka plemena čivava do 15 minút. Veľmi pomohlo, že tento psík bol videný okoloidúcimi, ktorí majiteľov informovali o jeho pohybe.",
-      },
-      {
-        src: "/gallery/gal02.webp",
-        alt: "Akcia s úsmevným koncom",
-        w: 1600,
-        h: 1067,
-        desc:
-          "Po príchode na miesto straty tohto psíka sa pilotovi Tomášovi stalo niečo, čo nečakal. Technika rozložená, dron nachystaný na vzlet a psík sa zrazu zjavil v blízkosti Tomáša! Stačilo ho len privolať.",
-      },
-      {
-        src: "/gallery/gal03.webp",
-        alt: "Perfektná spolupráca",
-        w: 1600,
-        h: 1067,
-        desc:
-          "Na základe informácii od poľovníkov, ktorí naviedli nášho pilota na správne miesto sa podarilo nájsť dvoch psíkov plemena Husky majiteľke.",
-      },
-      {
-        src: "/gallery/gal04.webp",
-        alt: "Pohľad termovízie dronu",
-        w: 1600,
-        h: 1067,
-        desc:
-          "Psíka, ktorý bol dlhodobo vonku sa nášmu pilotovi podarilo lokalizovať vďaka kvalitnej spolupráci všetkých, ktorí pohyb psíka hlásili.",
-      },
-      {
-        src: "/gallery/gal05.webp",
-        alt: "Lokalizovanie srnčiat",
-        w: 1600,
-        h: 1067,
-        desc:
-          "Pred začatím kosby je veľmi dôležité danú lúku skontrolovať dronmi, ktoré pomocou termovízie vidia aj do vysokého porastu. Vďaka tejto aktivite dokážeme zachrániť desiatky nevinných mladých srnčiat.",
-      },
-      {
-        src: "/gallery/gal06.webp",
-        alt: "Dlhodobo hľadaní býci",
-        w: 1600,
-        h: 1067,
-        desc:
-          "Aj napriek vysokým teplotám sa podarilo dronistovi Jakubovi V. nájsť dlhodobo hľadaných býkov. Na tejto aktivite sa podieľalo aj niekoľko jazdcov na koňoch, ktorí prišli na pomoc s odchytom býkov.",
-      },
-      {
-        src: "/gallery/gal07.webp",
-        alt: "Podpora od dobrovoľných hasičov",
-        w: 1600,
-        h: 1067,
-        desc:
-          "Bolo horúco a kone potrebovali vodu. DHZ Hlohovec prišli a zabezpečili pitný režim pre všetky kone.",
-      },
-      {
-        src: "/gallery/gal08.webp",
-        alt: "Spolupráca je veľmi dôležitá!",
-        w: 1600,
-        h: 1067,
-        desc:
-          "V spolupráci s civilnou ochranou sme dokázali pátrať až so štyrmi termovíznymi dronmi naraz. Vďaka tomu sme dôkladne prezreli obrovskú oblasť.",
-      },
-      {
-        src: "/gallery/gal09.webp",
-        alt: "Kosiť až po kontrole",
-        w: 1600,
-        h: 1067,
-        desc:
-          "Traktori s kosačkami dostávajú zelenú od našich pilotov až po kvalitnej kontrole poľa.",
-      },
-    ],
-    []
-  );
 
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
@@ -301,14 +267,14 @@ export default function PhotoCarousel() {
           <button
             aria-label="Predchádzajúca"
             onClick={userPrev}
-            className="rounded-full bg-black/55 px-3 py-2 text-white/90 hover:bg-black/75 transition text-sm"
+            className="cursor-pointer rounded-full bg-black/55 px-3 py-2 text-white/90 hover:bg-black/75 transition text-sm"
           >
             ←
           </button>
           <button
             aria-label="Ďalšia"
             onClick={userNext}
-            className="rounded-full bg-black/55 px-3 py-2 text-white/90 hover:bg-black/75 transition text-sm"
+            className="cursor-pointer rounded-full bg-black/55 px-3 py-2 text-white/90 hover:bg-black/75 transition text-sm"
           >
             →
           </button>
@@ -326,7 +292,7 @@ export default function PhotoCarousel() {
                 setDir(i > index ? 1 : -1);
                 setIndex(i);
               }}
-              className={`h-2 rounded-full transition-all ${
+              className={`cursor-pointer h-2 rounded-full transition-all ${
                 active ? "w-6 bg-white" : "w-2 bg-white/30 hover:bg-white/50"
               }`}
               aria-label={`Prejsť na fotku ${i + 1}`}

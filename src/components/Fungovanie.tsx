@@ -52,19 +52,13 @@ export default function Fungovanie({ id = "fungovanie" }: Props) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className="relative mb-10 overflow-hidden rounded-xl border border-white/12 bg-white/[0.03] px-5 py-4"
-        aria-label="Dôležité upozornenie"
+        className="mb-10 border-l-2 border-white/20 pl-5"
       >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-start md:gap-20 gap-3">
-          <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-white/60">
-            <span className="h-1.5 w-1.5 rounded-full bg-white/60 animate-pulse" />
-            Dôležité
-          </div>
-          <p className="text-white/85">
-            <span className="font-semibold">Ide o čas:</span> kontaktujte nás čo najskôr,
-            ideálne do 24 hodín od poslednej spoľahlivej informácie o pohybe zvieraťa.
-          </p>
-        </div>
+        <p className="text-[11px] uppercase tracking-widest text-white/35 mb-2">Dôležité</p>
+        <p className="text-white/80 leading-7">
+          Ide o čas — kontaktujte nás čo najskôr, ideálne do 24 hodín od poslednej
+          spoľahlivej informácie o pohybe zvieraťa.
+        </p>
       </motion.div>
 
       <div className="relative">

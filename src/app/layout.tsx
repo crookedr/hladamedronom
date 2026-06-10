@@ -1,25 +1,51 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "leaflet/dist/leaflet.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 import PageTransition from "@/components/PageTransition";
 import Cookiebanner from "@/components/Cookiebanner";
+// import MessengerButton from "@/components/MessengerButton";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Hľadáme Dronom",
+  metadataBase: new URL("https://www.hladamedronom.sk"),
+  title: {
+    default: "Hľadáme Dronom | Pátranie po stratených zvieratách",
+    template: "%s | Hľadáme Dronom",
+  },
   description:
-    "Hľadáme stratené zvieratá pomocou dronov – rýchlo, bezpečne a efektívne.",
+    "Pomáhame nájsť stratené zvieratá pomocou termálneho dronu v Bratislave a Západnom Slovensku. Bezplatná pomoc dobrovoľníkov.",
+  keywords: [
+    "hľadanie stratených zvierat dron",
+    "stratený pes dron",
+    "stratená mačka dron",
+    "termálny dron Slovensko",
+    "pátranie dron Bratislava",
+    "OZ Hľadáme Dronom",
+    "záchrana zvierat dron",
+  ],
   icons: { icon: "/favicon.ico" },
+  openGraph: {
+    type: "website",
+    locale: "sk_SK",
+    siteName: "Hľadáme Dronom",
+    images: [{ url: "/ozlogo.png", width: 512, height: 512, alt: "OZ Hľadáme Dronom logo" }],
+  },
+  twitter: {
+    card: "summary",
+    images: ["/ozlogo.png"],
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="sk">
-        <body className={`${inter.className} bg-[#0b0d10] text-white antialiased overflow-x-hidden overflow-y-auto`}>
+      <body className={`${inter.className} bg-[#0b0d10] text-white antialiased overflow-x-hidden overflow-y-auto`}>
         <PageTransition>{children}</PageTransition>
         <Cookiebanner />
+        {/* <MessengerButton /> */}
       </body>
     </html>
   );

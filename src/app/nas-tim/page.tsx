@@ -1,12 +1,22 @@
-"use client";
-
+import type { Metadata } from "next";
 import Navigbar from "@/components/Navigbar";
-import dynamic from "next/dynamic";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import Footer from "@/components/Footer";
 import Fungovanie from "@/components/Fungovanie";
+import TeamGridClient from "@/components/TeamGridClient";
+import PovedaliONas from "@/components/PovedaliONas";
 
-const TeamGrid = dynamic(() => import("@/components/TeamGrid"), { ssr: false });
+export const metadata: Metadata = {
+  title: "Náš tím",
+  description:
+    "Spoznajte dobrovoľnícky tím OZ Hľadáme Dronom – nadšencov dronov a pátrania, ktorí pomáhajú hľadať stratené zvieratá v Bratislave a Západnom Slovensku.",
+  openGraph: {
+    title: "Náš tím | Hľadáme Dronom",
+    description:
+      "Spoznajte dobrovoľnícky tím OZ Hľadáme Dronom – nadšencov dronov a pátrania, ktorí pomáhajú hľadať stratené zvieratá v Bratislave a Západnom Slovensku.",
+    url: "https://www.hladamedronom.sk/nas-tim",
+  },
+};
 
 export default function NasTimPage() {
   return (
@@ -20,14 +30,16 @@ export default function NasTimPage() {
               Sme partia nadšencov dronov, techniky a pátrania. Zoznám sa s nami
             </p>
           </header>
-          <TeamGrid />
+          <TeamGridClient />
         </section>
-      
-        <Fungovanie id="fungovanie"/>
+
+        <PovedaliONas />
 
         <section id="fotogaleria" className="mx-auto max-w-6xl px-6 pb-16">
           <PhotoCarousel />
         </section>
+
+        <Fungovanie id="fungovanie"/>
 
         <Footer />
       </main>

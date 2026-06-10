@@ -1,6 +1,14 @@
 {
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/cookies/page": "app/cookies/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/rasty/page": "app/rasty/page.js",
+  "/nas-tim/page": "app/nas-tim/page.js",
   "/page": "app/page.js",
-  "/nas-tim/page": "app/nas-tim/page.js"
+  "/rasty/page": "app/rasty/page.js",
+  "/robots.txt/route": "app/robots.txt/route.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js",
+  "/srnciatka/page": "app/srnciatka/page.js",
+  "/zachraneni/page": "app/zachraneni/page.js",
+  "/zasady-ochrany-osobnych-udajov/page": "app/zasady-ochrany-osobnych-udajov/page.js"
 }

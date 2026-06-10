@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Pt = { x: number; y: number };
@@ -77,36 +77,30 @@ export default function PostupInteractive() {
   const [modalTop, setModalTop] = useState<number | null>(null);
   const [pathLength, setPathLength] = useState<number | null>(null);
 
-  const recomputePts = useMemo(
-    () => () => {
-      const p = pathRef.current;
-      if (!p) return;
-      const L = p.getTotalLength();
-      setPathLength(L);
-      setPts(
-        STEPS.map((s) => {
-          const pt = p.getPointAtLength(L * s.t);
-          return { x: pt.x, y: pt.y + (s.offsetY ?? 0) };
-        })
-      );
-    },
-    []
-  );
+  const recomputePts = useCallback(() => {
+    const p = pathRef.current;
+    if (!p) return;
+    const L = p.getTotalLength();
+    setPathLength(L);
+    setPts(
+      STEPS.map((s) => {
+        const pt = p.getPointAtLength(L * s.t);
+        return { x: pt.x, y: pt.y + (s.offsetY ?? 0) };
+      })
+    );
+  }, []);
 
-  const recomputeModalTop = useMemo(
-    () => () => {
-      const el = sectionRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const center = rect.top + window.scrollY + rect.height / 2;
+  const recomputeModalTop = useCallback(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const center = rect.top + window.scrollY + rect.height / 2;
 
-      const minTop = window.scrollY + 80;
-      const maxTop = window.scrollY + window.innerHeight - 80;
-      const clamped = Math.max(minTop, Math.min(center, maxTop));
-      setModalTop(clamped);
-    },
-    []
-  );
+    const minTop = window.scrollY + 80;
+    const maxTop = window.scrollY + window.innerHeight - 80;
+    const clamped = Math.max(minTop, Math.min(center, maxTop));
+    setModalTop(clamped);
+  }, []);
 
   useEffect(() => {
     recomputePts();
@@ -203,7 +197,7 @@ export default function PostupInteractive() {
                   strokeWidth="4"
                   strokeLinecap="round"
                   filter="url(#postup-glow)"
-                  initial={{ opacity: 0 }}
+                  initial={{ opacity: 0, strokeDasharray: `0 ${pathLength}` }}
                   animate={{
                     opacity: 1,
                     strokeDasharray: `${visibleLen} ${pathLength}`,
