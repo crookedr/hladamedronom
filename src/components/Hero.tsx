@@ -7,7 +7,7 @@ export default function Hero() {
   return (
     <section className="relative h-[100dvh] w-full overflow-hidden -mt-16 flex items-center justify-center pt-16">
       <video
-        className="absolute inset-0 h-full w-full z-0 object-cover object-center"
+        className="absolute inset-0 h-full w-full z-0 object-cover object-top sm:object-center"
         autoPlay
         muted
         loop

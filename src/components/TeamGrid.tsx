@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const EASE = [0.16, 1, 0.3, 1] as const;
+
 type Member = {
   name: string;
   role: string;
@@ -83,6 +85,9 @@ type SharedProps = {
 
 function MobileView({ active, setActive, onInteract }: SharedProps) {
   const startX = useRef<number | null>(null);
+  const [showBio, setShowBio] = useState(false);
+
+  useEffect(() => { setShowBio(false); }, [active]);
 
   const next = () => {
     onInteract();
@@ -111,10 +116,11 @@ function MobileView({ active, setActive, onInteract }: SharedProps) {
   return (
     <section className="md:hidden px-6">
       <div
-        className="rounded-2xl overflow-hidden bg-white/[0.04] ring-1 ring-white/15 shadow-2xl shadow-black/40"
+        className="relative rounded-2xl overflow-hidden bg-white/[0.04] ring-1 ring-white/15 shadow-2xl shadow-black/40"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
+        {/* Photo */}
         <div className="relative w-full aspect-[4/5] bg-black/40">
           <Image
             src={m.img}
@@ -129,27 +135,63 @@ function MobileView({ active, setActive, onInteract }: SharedProps) {
           />
         </div>
 
-        <div className="p-5">
-          <h3 className="text-2xl font-semibold">{m.name}</h3>
-          <p className="text-white/60 mt-1">{m.role}</p>
-          <p className="mt-3 text-white/80 leading-7">{m.bio}</p>
-
-          <div className="mt-5 flex items-center justify-center gap-2">
-            {members.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  onInteract();
-                  setActive(i);
-                }}
-                className={`cursor-pointer h-2 rounded-full transition-all ${
-                  i === active ? "w-6 bg-white" : "w-2 bg-white/35 hover:bg-white/55"
-                }`}
-                aria-label={`Zvoliť ${i + 1}`}
-              />
-            ))}
+        {/* Card footer */}
+        <div className="p-5 flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h3 className="text-xl font-semibold truncate">{m.name}</h3>
+            <p className="text-white/55 text-sm mt-0.5 truncate">{m.role}</p>
           </div>
+          <button
+            onClick={() => setShowBio(true)}
+            aria-label="Zobraziť bio"
+            className="cursor-pointer shrink-0 w-9 h-9 rounded-full border border-white/20 hover:border-white/50 transition flex items-center justify-center text-white/55 hover:text-white"
+          >
+            <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <circle cx="8" cy="8" r="6.5" />
+              <path strokeLinecap="round" d="M8 7.5v4" />
+              <circle cx="8" cy="5.2" r="0.6" fill="currentColor" stroke="none" />
+            </svg>
+          </button>
         </div>
+
+        <div className="pb-5 flex items-center justify-center gap-2">
+          {members.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => { onInteract(); setActive(i); }}
+              className={`cursor-pointer h-2 rounded-full transition-all ${
+                i === active ? "w-6 bg-white" : "w-2 bg-white/35 hover:bg-white/55"
+              }`}
+              aria-label={`Zvoliť ${i + 1}`}
+            />
+          ))}
+        </div>
+
+        {/* Bio overlay — covers entire card, slides up from bottom */}
+        <AnimatePresence>
+          {showBio && (
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ duration: 0.42, ease: EASE }}
+              className="absolute inset-0 bg-[#0d0f12]/96 backdrop-blur-md p-4 overflow-y-auto"
+            >
+              <button
+                onClick={() => setShowBio(false)}
+                className="cursor-pointer absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition flex items-center justify-center text-white/60 hover:text-white"
+                aria-label="Zavrieť"
+              >
+                <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path strokeLinecap="round" d="M4 4l8 8M12 4l-8 8" />
+                </svg>
+              </button>
+              <p className="text-[13px] text-white/80 leading-[1.75] mt-10">
+                {m.bio}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

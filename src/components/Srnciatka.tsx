@@ -116,7 +116,7 @@ export default function Srnciatka() {
   return (
     <>
       {/* ── HERO ── */}
-      <section {...s} className="relative h-screen overflow-hidden">
+      <section {...s} className="relative h-[100dvh] overflow-hidden">
         <motion.div
           style={{ y: heroImgY }}
           className="absolute inset-0 scale-[1.22] origin-center"
@@ -175,7 +175,7 @@ export default function Srnciatka() {
       </section>
 
       {/* ── PULL QUOTE ── */}
-      <section {...s} className="h-screen flex items-center">
+      <section {...s} className="h-[100dvh] flex items-center">
         <div className="mx-auto w-full max-w-7xl px-6 md:px-14">
           <div className="grid md:grid-cols-[5fr_3fr] gap-12 md:gap-24 items-start">
             <blockquote className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.12]">
@@ -225,10 +225,10 @@ export default function Srnciatka() {
       </section>
 
       {/* ── PORTRAIT GALLERY ── */}
-      <div ref={galleryRef} {...s} className="relative h-screen overflow-hidden bg-[#07090c] flex items-center justify-center">
+      <div ref={galleryRef} {...s} className="relative h-[100dvh] overflow-hidden bg-[#07090c] flex items-center justify-center">
 
         {/* Desktop: 6 portrait photos side by side, no gaps */}
-        <div className="hidden md:flex h-screen w-full overflow-hidden">
+        <div className="hidden md:flex h-[100dvh] w-full overflow-hidden">
           {DESKTOP_IMGS.map((src, i) => (
             <motion.div
               key={src}
@@ -293,7 +293,7 @@ export default function Srnciatka() {
       </div>
 
       {/* ── EDITORIAL PROSE ── */}
-      <section {...s} className="h-screen flex items-center">
+      <section {...s} className="h-[100dvh] flex items-center">
         <div className="mx-auto w-full max-w-7xl px-6 md:px-14">
           <div className="grid md:grid-cols-2 gap-10 md:gap-20">
             <motion.p
@@ -324,7 +324,7 @@ export default function Srnciatka() {
       </section>
 
       {/* ── CLOSING ── */}
-      <section {...s} className="relative h-screen overflow-hidden">
+      <section {...s} className="relative h-[100dvh] overflow-hidden">
         <video
           src="/srnciatko.mp4"
           autoPlay

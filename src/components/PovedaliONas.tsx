@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-const AUTO_MS = 10000;
+const AUTO_MS = 16000;
 
 const reviews = [
   {
@@ -57,11 +57,11 @@ export default function PovedaliONas() {
   const r = reviews[idx];
 
   return (
-    <section className="mx-auto max-w-4xl px-6 pt-4 pb-24">
+    <section className="mx-auto max-w-4xl px-6 pt-4 pb-12 md:pb-24">
 
       {/* Header */}
       <motion.div
-        className="text-center mb-14"
+        className="text-center mb-8 md:mb-14"
         initial={{ opacity: 0, y: 14 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -79,7 +79,7 @@ export default function PovedaliONas() {
         <button
           onClick={() => go(idx - 1, -1)}
           aria-label="Predchádzajúci"
-          className="cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full border border-white/15 hover:border-white/35 hover:bg-white/5 transition flex items-center justify-center text-white/40 hover:text-white/80"
+          className="cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full border border-white/15 hover:border-white/35 hover:bg-white/5 transition flex items-center justify-center text-white/40 hover:text-white/80"
         >
           <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 12L6 8l4-4" />
@@ -88,7 +88,7 @@ export default function PovedaliONas() {
         <button
           onClick={() => go(idx + 1, 1)}
           aria-label="Ďalší"
-          className="cursor-pointer absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full border border-white/15 hover:border-white/35 hover:bg-white/5 transition flex items-center justify-center text-white/40 hover:text-white/80"
+          className="cursor-pointer absolute right-0 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full border border-white/15 hover:border-white/35 hover:bg-white/5 transition flex items-center justify-center text-white/40 hover:text-white/80"
         >
           <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 4l4 4-4 4" />
@@ -108,7 +108,7 @@ export default function PovedaliONas() {
               transition={{ duration: 0.38, ease: EASE }}
               className="text-center"
             >
-              <p className="text-white/75 text-lg md:text-xl leading-[1.9]">
+              <p className="text-white/75 text-base md:text-lg leading-relaxed md:leading-[1.9]">
                 {r.quote}
               </p>
               <div className="mt-6 space-y-0.5">
@@ -121,7 +121,7 @@ export default function PovedaliONas() {
       </div>
 
       {/* Dots */}
-      <div className="mt-10 flex items-center justify-center gap-2">
+      <div className="mt-6 md:mt-10 flex items-center justify-center gap-2">
         {reviews.map((_, i) => (
           <button
             key={i}

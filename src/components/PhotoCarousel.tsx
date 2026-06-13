@@ -75,13 +75,13 @@ export default function PhotoCarousel() {
 
   const goNext = useCallback(() => {
     setDir(1);
-    setIndex((i) => (i + 1) % slides.length);
-  }, [slides.length]);
+    setIndex((i: number) => (i + 1) % slides.length);
+  }, []);
 
   const goPrev = useCallback(() => {
     setDir(-1);
-    setIndex((i) => (i - 1 + slides.length) % slides.length);
-  }, [slides.length]);
+    setIndex((i: number) => (i - 1 + slides.length) % slides.length);
+  }, []);
 
   const userNext = useCallback(() => {
     markInteraction();
@@ -207,7 +207,7 @@ export default function PhotoCarousel() {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div style={{ paddingTop: `${ratioPad}%` }} className="relative w-full">
+        <div style={{ paddingTop: `${ratioPad}%` }} className="relative w-full min-h-[300px] sm:min-h-0">
           <AnimatePresence custom={dir} initial={false} mode="popLayout">
             <motion.div
               key={index}
@@ -227,7 +227,7 @@ export default function PhotoCarousel() {
                 priority
               />
 
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-32 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-32 bg-linear-to-t from-black/85 via-black/45 to-transparent" />
 
               <motion.div
                 className="absolute left-3 right-3 sm:right-auto bottom-3 z-20 max-w-none sm:max-w-[420px]"
@@ -245,15 +245,15 @@ export default function PhotoCarousel() {
                       aria-label="Zobraziť alebo skryť info o fotke"
                       onClick={() => {
                         markInteraction();
-                        setShowInfo((v) => !v);
+                        setShowInfo((v: boolean) => !v);
                       }}
-                      className="rounded-md px-2 py-1 text-[11px] sm:text-xs text-white/80 hover:text-white hover:bg-white/10 transition"
+                      className="rounded-md px-2 py-1 text-xs text-white/80 hover:text-white hover:bg-white/10 transition"
                     >
                       {showInfo ? "Skryť" : "ℹ︎ O fotke"}
                     </button>
                   </div>
                   {showInfo && (
-                    <p className="mt-2 text-[13px] sm:text-sm text-white/90 leading-relaxed">
+                    <p className="mt-2 text-[13px] sm:text-sm text-white/90 leading-relaxed max-h-28 overflow-y-auto">
                       {slides[index].desc}
                     </p>
                   )}
