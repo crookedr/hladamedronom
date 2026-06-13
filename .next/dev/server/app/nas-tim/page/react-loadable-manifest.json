@@ -1,9 +1,0 @@
-{
-  "[project]/src/components/TeamGrid.tsx [app-client] (ecmascript, next/dynamic entry)": {
-    "id": "[project]/src/components/TeamGrid.tsx [app-client] (ecmascript, next/dynamic entry)",
-    "files": [
-      "static/chunks/src_components_TeamGrid_tsx_0c183c58._.js",
-      "static/chunks/src_components_TeamGrid_tsx_56b4b30d._.js"
-    ]
-  }
-}
