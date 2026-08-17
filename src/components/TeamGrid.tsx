@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSwipeNav } from "@/hooks/useSwipeNav";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -26,7 +27,7 @@ const members: Member[] = [
   },
   {
     name: "Roman",
-    role: "Člen združenia",
+    role: "Spoluzakladateľ združenia",
     img: "/team/02.webp",
     bio:
       "Roman je jeden zo zakladateľov a aktívnych členov združenia. Má na starosti najmä technickú stránku fungovania, ktorá začína od nastavovania sociálnych sietí a potrebných online nástrojov až po vývoj a prevádzku tejto webovej stránky, na ktorú sa práve pozeráte. V združení sa zameriava na to, aby všetko fungovalo moderne. Jeho cieľom je podieľať sa na stabilnom a správnom chode združenia, pomáhať rozvíjať naše projekty a hľadať nové riešenia, ktoré posunú naše fungovanie o krok ďalej. Zároveň chce postupne budovať silnú online prítomnosť, ktorá priblíži naše fungovanie verejnosti a posilní dôveru v to, čo robíme.",
@@ -84,7 +85,6 @@ type SharedProps = {
 };
 
 function MobileView({ active, setActive, onInteract }: SharedProps) {
-  const startX = useRef<number | null>(null);
   const [showBio, setShowBio] = useState(false);
 
   useEffect(() => { setShowBio(false); }, [active]);
@@ -98,24 +98,14 @@ function MobileView({ active, setActive, onInteract }: SharedProps) {
     setActive((i) => wrap(i - 1, members.length));
   };
 
-  const onTouchStart = (e: React.TouchEvent) => {
-    startX.current = e.touches[0].clientX;
-  };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (startX.current == null) return;
-    const dx = e.changedTouches[0].clientX - startX.current;
-    startX.current = null;
-    if (Math.abs(dx) > 40) {
-      if (dx < 0) next();
-      else prev();
-    }
-  };
+  const { ref: swipeRef, onTouchStart, onTouchEnd } = useSwipeNav<HTMLDivElement>(next, prev);
 
   const m = members[active];
 
   return (
     <section className="md:hidden px-6">
       <div
+        ref={swipeRef}
         className="relative rounded-2xl overflow-hidden bg-white/[0.04] ring-1 ring-white/15 shadow-2xl shadow-black/40"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
@@ -244,8 +234,13 @@ function DesktopView({
     return Math.abs(left) < right ? left : right;
   };
 
+  const { ref: swipeRef, onTouchStart, onTouchEnd } = useSwipeNav<HTMLElement>(next, prev);
+
   return (
     <section
+      ref={swipeRef}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
       className="hidden md:block relative w-screen overflow-hidden left-1/2 -translate-x-1/2"
       aria-roledescription="carousel"
       aria-label="Náš tím"

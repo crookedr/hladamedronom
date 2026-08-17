@@ -56,7 +56,7 @@ export default function Fungovanie({ id = "fungovanie" }: Props) {
       >
         <p className="text-[11px] uppercase tracking-widest text-white/35 mb-2">Dôležité</p>
         <p className="text-white/80 leading-7">
-          Ide o čas — kontaktujte nás čo najskôr, ideálne do 24 hodín od poslednej
+          Ide o čas, kontaktujte nás čo najskôr, ideálne do 24 hodín od poslednej
           spoľahlivej informácie o pohybe zvieraťa.
         </p>
       </motion.div>

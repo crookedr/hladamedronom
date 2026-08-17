@@ -9,11 +9,11 @@ import PovedaliONas from "@/components/PovedaliONas";
 export const metadata: Metadata = {
   title: "Náš tím",
   description:
-    "Spoznajte dobrovoľnícky tím OZ Hľadáme Dronom – nadšencov dronov a pátrania, ktorí pomáhajú hľadať stratené zvieratá v Bratislave a Západnom Slovensku.",
+    "Spoznajte dobrovoľnícky tím OZ Hľadáme Dronom – nadšencov dronov a pátrania, ktorí pomáhajú hľadať stratené zvieratá na Slovensku.",
   openGraph: {
     title: "Náš tím | Hľadáme Dronom",
     description:
-      "Spoznajte dobrovoľnícky tím OZ Hľadáme Dronom – nadšencov dronov a pátrania, ktorí pomáhajú hľadať stratené zvieratá v Bratislave a Západnom Slovensku.",
+      "Spoznajte dobrovoľnícky tím OZ Hľadáme Dronom – nadšencov dronov a pátrania, ktorí pomáhajú hľadať stratené zvieratá na Slovensku.",
     url: "https://www.hladamedronom.sk/nas-tim",
   },
 };

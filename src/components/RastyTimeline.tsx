@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSwipeNav } from "@/hooks/useSwipeNav";
 
 type Step = {
   day: string;
@@ -21,15 +22,9 @@ const steps: Step[] = [
 export default function RastyTimeline() {
   const [active, setActive] = useState(0);
 
-  const touchStartX = useRef<number | null>(null);
-  const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current == null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    const TH = 40;
-    if (Math.abs(dx) > TH) setActive((i) => Math.min(Math.max(i + (dx < 0 ? 1 : -1), 0), steps.length - 1));
-    touchStartX.current = null;
-  };
+  const next = () => setActive((i) => Math.min(i + 1, steps.length - 1));
+  const prev = () => setActive((i) => Math.max(i - 1, 0));
+  const { ref: swipeRef, onTouchStart, onTouchEnd } = useSwipeNav<HTMLDivElement>(next, prev);
 
   return (
     <div className="w-full">
@@ -38,7 +33,7 @@ export default function RastyTimeline() {
         <p className="text-white/70 mt-2">Prehľad krokov, ktoré viedli k nájdeniu Rastyho</p>
       </div>
 
-      <div className="md:hidden select-none" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <div ref={swipeRef} className="md:hidden select-none" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div className="relative px-5 pt-4 pb-3">
           <div className="h-px w-full bg-white/20" />
           <div className="relative -mt-[7px] grid grid-cols-6">

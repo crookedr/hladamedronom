@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSwipeNav } from "@/hooks/useSwipeNav";
 
 type Case = {
   name: string;
@@ -61,23 +62,20 @@ type SharedProps = {
 };
 
 function MobileView({ active, setActive, onInteract }: SharedProps) {
-  const startX = useRef<number | null>(null);
   const c = cases[active];
 
   const next = () => { onInteract(); setActive(i => wrap(i + 1, cases.length)); };
   const prev = () => { onInteract(); setActive(i => wrap(i - 1, cases.length)); };
 
+  const { ref: swipeRef, onTouchStart, onTouchEnd } = useSwipeNav<HTMLDivElement>(next, prev);
+
   return (
     <div className="md:hidden px-6">
       <div
+        ref={swipeRef}
         className="rounded-2xl overflow-hidden bg-white/[0.04] ring-1 ring-white/15 shadow-2xl shadow-black/40"
-        onTouchStart={e => { startX.current = e.touches[0].clientX; }}
-        onTouchEnd={e => {
-          if (startX.current == null) return;
-          const dx = e.changedTouches[0].clientX - startX.current;
-          startX.current = null;
-          if (Math.abs(dx) > 40) { if (dx < 0) next(); else prev(); }
-        }}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
         <div className="relative w-full aspect-[4/5] bg-black/40">
           <AnimatePresence mode="wait">
@@ -157,8 +155,15 @@ function DesktopView({ active, setActive, onInteract, winW }: SharedProps & { wi
     return Math.abs(left) < right ? left : right;
   };
 
+  const { ref: swipeRef, onTouchStart, onTouchEnd } = useSwipeNav<HTMLDivElement>(next, prev);
+
   return (
-    <div className="hidden md:block relative w-screen overflow-hidden left-1/2 -translate-x-1/2">
+    <div
+      ref={swipeRef}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      className="hidden md:block relative w-screen overflow-hidden left-1/2 -translate-x-1/2"
+    >
       <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-gradient-to-r from-[#0b0d10] to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-gradient-to-l from-[#0b0d10] to-transparent" />
 

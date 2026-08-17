@@ -7,13 +7,13 @@ import Postup from "@/components/Postup";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Hľadáme Dronom | Pátranie po stratených zvieratách dronom",
+  title: "Hľadáme Dronom",
   description:
-    "Pomáhame nájsť stratené zvieratá pomocou termálneho dronu v Bratislave a Západnom Slovensku. Kontaktujte nás – sme dobrovoľníci a pomáhame bezplatne.",
+    "Pomáhame nájsť stratené zvieratá pomocou termovízneho dronu na Slovensku.",
   openGraph: {
-    title: "Hľadáme Dronom | Pátranie po stratených zvieratách dronom",
+    title: "Hľadáme Dronom",
     description:
-      "Pomáhame nájsť stratené zvieratá pomocou termálneho dronu v Bratislave a Západnom Slovensku. Kontaktujte nás – sme dobrovoľníci a pomáhame bezplatne.",
+      "Pomáhame nájsť stratené zvieratá pomocou termovízneho dronu na Slovensku.",
     url: "https://www.hladamedronom.sk",
   },
 };
@@ -27,10 +27,10 @@ const jsonLd = {
   email: "hladamedronom@gmail.com",
   sameAs: ["https://www.facebook.com/hladamedronom"],
   description:
-    "Dobrovoľnícke občianske združenie, ktoré pomáha hľadať stratené zvieratá pomocou termálneho dronu v Bratislave a Západnom Slovensku.",
+    "Dobrovoľnícke občianske združenie, ktoré pomáha hľadať stratené zvieratá pomocou termovízneho dronu.",
   areaServed: {
     "@type": "AdministrativeArea",
-    name: "Západné Slovensko",
+    name: "Slovensko",
   },
 };
 

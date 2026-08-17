@@ -17,29 +17,25 @@ export default function RastyQuote() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: EASE }}
         >
-          <p className="text-white/38 text-sm leading-6 mb-10">
-            Príbeh, ktorý nás definoval
-          </p>
-
           <div className="space-y-1 mb-10">
-            <div className="overflow-hidden">
+            <div className="overflow-hidden pb-2">
               <motion.h3
                 initial={{ y: "100%" }}
                 whileInView={{ y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.75, ease: EASE }}
-                className="text-5xl md:text-6xl font-bold tracking-tight leading-[1.05]"
+                className="text-5xl md:text-6xl font-bold tracking-tight leading-[1.15]"
               >
                 Ďakujeme,
               </motion.h3>
             </div>
-            <div className="overflow-hidden">
+            <div className="overflow-hidden pb-2">
               <motion.span
                 initial={{ y: "100%" }}
                 whileInView={{ y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.75, ease: EASE, delay: 0.08 }}
-                className="block text-5xl md:text-6xl font-bold tracking-tight leading-[1.05] text-white/45"
+                className="block text-5xl md:text-6xl font-bold tracking-tight leading-[1.15] text-white/45"
               >
                 Rasty.
               </motion.span>

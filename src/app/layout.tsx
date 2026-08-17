@@ -11,17 +11,17 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.hladamedronom.sk"),
   title: {
-    default: "Hľadáme Dronom | Pátranie po stratených zvieratách",
+    default: "Hľadáme Dronom",
     template: "%s | Hľadáme Dronom",
   },
   description:
-    "Pomáhame nájsť stratené zvieratá pomocou termálneho dronu v Bratislave a Západnom Slovensku. Bezplatná pomoc dobrovoľníkov.",
+    "Pomáhame nájsť stratené zvieratá pomocou termovízneho dronu. Bezplatná pomoc dobrovoľníkov.",
   keywords: [
-    "hľadanie stratených zvierat dron",
+    "hľadanie stratených zvierat dronom",
     "stratený pes dron",
     "stratená mačka dron",
     "termálny dron Slovensko",
-    "pátranie dron Bratislava",
+    "pátranie dronom",
     "OZ Hľadáme Dronom",
     "záchrana zvierat dron",
   ],

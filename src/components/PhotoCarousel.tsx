@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { useSwipeNav } from "@/hooks/useSwipeNav";
 
 type Slide = { src: string; alt: string; w: number; h: number; desc: string };
 const AUTO_DELAY = 8000;
@@ -67,7 +68,6 @@ export default function PhotoCarousel() {
   );
 
   const timer = useRef<number | null>(null);
-  const touchStartX = useRef<number | null>(null);
 
   const markInteraction = useCallback(() => {
     setLastInteraction(Date.now());
@@ -149,18 +149,10 @@ export default function PhotoCarousel() {
     setShowInfo(isDesktop);
   }, [index, isDesktop]);
 
-  const onTouchStart = (e: React.TouchEvent) =>
-    (touchStartX.current = e.touches[0].clientX);
-
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current == null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 40) {
-      if (dx < 0) userNext();
-      else userPrev();
-    }
-    touchStartX.current = null;
-  };
+  const { ref: swipeRef, onTouchStart, onTouchEnd } = useSwipeNav<HTMLDivElement>(
+    userNext,
+    userPrev
+  );
 
   const EASE_OUT = [0.16, 1, 0.3, 1] as const;
   const EASE_IN = [0.4, 0, 1, 1] as const;
@@ -203,6 +195,7 @@ export default function PhotoCarousel() {
       </div>
 
       <div
+        ref={swipeRef}
         className="relative w-full max-w-none sm:max-w-6xl mx-0 sm:mx-auto overflow-hidden rounded-none sm:rounded-3xl"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}

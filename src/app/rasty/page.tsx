@@ -6,11 +6,11 @@ import RastyTimeline from "@/components/RastyTimeline";
 import RastyQuote from "@/components/RastyQuote";
 
 export const metadata: Metadata = {
-  title: "Rasty – náš príbeh",
+  title: "Rasty",
   description:
     "Príbeh Rastyho – psíka, ktorý inšpiroval vznik OZ Hľadáme Dronom. Spoznajte, ako sa začalo pátranie pomocou dronu na Slovensku.",
   openGraph: {
-    title: "Rasty – náš príbeh | Hľadáme Dronom",
+    title: "Rasty | Hľadáme Dronom",
     description:
       "Príbeh Rastyho – psíka, ktorý inšpiroval vznik OZ Hľadáme Dronom. Spoznajte, ako sa začalo pátranie pomocou dronu na Slovensku.",
     url: "https://www.hladamedronom.sk/rasty",

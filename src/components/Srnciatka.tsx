@@ -212,7 +212,7 @@ export default function Srnciatka() {
             >
               <p>
                 V prvých týždňoch života nemajú únikový inštinkt. Keď cítia nebezpečenstvo,
-                schúlia sa do trávy a nehybne čakajú — inštinkt, ktorý ich chráni pred dravcami,
+                schúlia sa do trávy a nehybne čakajú, inštinkt, ktorý ich chráni pred dravcami,
                 ich robí neviditeľnými pre kosačku.
               </p>
               <p>
