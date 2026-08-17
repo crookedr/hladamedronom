@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import ZachraneniList from "@/components/ZachraneniList";
 
 export const metadata: Metadata = {
-  title: "Zachránení | Hľadáme Dronom",
+  title: "Zachránení",
   description:
     "Príbehy zvierat, ktoré sme našli vďaka termovíznemu dronu. Každý príbeh má šťastný koniec.",
   openGraph: {

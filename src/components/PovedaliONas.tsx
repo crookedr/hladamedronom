@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const AUTO_MS = 16000;
@@ -39,6 +39,8 @@ export default function PovedaliONas() {
   const [idx, setIdx] = useState(0);
   const [dir, setDir] = useState(1);
   const [timer, setTimer] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const inView = useInView(sectionRef, { once: true, margin: "-20% 0px -20% 0px" });
 
   const go = useCallback((next: number, d: number) => {
     setDir(d);
@@ -47,17 +49,18 @@ export default function PovedaliONas() {
   }, []);
 
   useEffect(() => {
+    if (!inView) return;
     const id = setInterval(() => {
       setDir(1);
       setIdx(i => (i + 1) % reviews.length);
     }, AUTO_MS);
     return () => clearInterval(id);
-  }, [timer]);
+  }, [timer, inView]);
 
   const r = reviews[idx];
 
   return (
-    <section className="mx-auto max-w-4xl px-6 pt-4 pb-12 md:pb-24">
+    <section ref={sectionRef} className="mx-auto max-w-4xl px-6 pt-4 pb-12 md:pb-24">
 
       {/* Header */}
       <motion.div
