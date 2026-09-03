@@ -63,7 +63,23 @@ const members: Member[] = [
     role: "Dronista",
     img: "/team/06.webp",
     bio:
-      "Juraj pochádza z Veľkých Loviec a býva v obci Alekšince a je najnovším dobrovoľníkom a zabezpečuje širokú oblasť jeho bydliska smerujúcu na Trnavu a južnejšie od Nitry. Juraj je v našom tíme od novembra 2025 a je pilotom termovízneho dronu DJI MAVIC 3T. Juraj bude mať na starosť podporu z oblohy za účelom pátrania po nezvestných zvieratách a lokalizovanie srnčej zveri na poliach pred začatím kosby, rovnako ako ostatní piloti.",
+      "Juraj pochádza z Veľkých Loviec a býva v obci Alekšince a je dôležitou súčasťou nášho tímu. Ako pilot termovízneho dronu DJI MATRICE 4T prináša do našej činnosti spoľahlivosť, precíznosť a zodpovedný prístup. Aktívne sa podieľa na pátraní po nezvestných zvieratách a na ochrane srnčej zveri počas sezóny kosenia. Okrem lietania náš tím podporuje aj svojimi skúsenosťami a ochotou pomôcť v každej situácii.",
+    imgPos: "center top",
+  },
+    {
+    name: "Oliver",
+    role: "Dronista",
+    img: "/team/07.webp",
+    bio:
+      "Oliver pochádza z Popradu a dronom sa venuje už viac ako 10 rokov. Pri pátraní využíva najmä termovízny dron DJI Mavic 3TA. Do Hľadáme Dronom sa zapojil ako milovník zvierat, ktorý chce svoje skúsenosti s dronmi využiť na pomoc pri hľadaní nezvestných zvierat a lokalizovaní srnčej zveri pred kosbou. Sám má psa Gennara, a preto dobre vie, aké ťažké je, keď sa človeku stratí jeho štvornohý parťák.",
+    imgPos: "center",
+  },
+    {
+    name: "Peter",
+    role: "Dronista",
+      img: "/team/08.webp",
+    bio:
+      "Nový pilot dronov, ktorý vám bude nápomocný pre oblasť Dunajská Lužná a 100 km okruh. Peťo je profesionálny pilot dronov, ktorý sa pracovne venuje AGRO dronom. Je pripravený venovať svoj voľný čas na nezištnú pomoc vám a rovnako aj do dalších sezón pri lokalizovaní srnčej zveri na poliach pred začatím kosby. ",
     imgPos: "center top",
   },
 ];

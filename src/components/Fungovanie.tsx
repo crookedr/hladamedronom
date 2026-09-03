@@ -54,7 +54,6 @@ export default function Fungovanie({ id = "fungovanie" }: Props) {
         transition={{ duration: 0.35, ease: "easeOut" }}
         className="mb-10 border-l-2 border-white/20 pl-5"
       >
-        <p className="text-[11px] uppercase tracking-widest text-white/35 mb-2">Dôležité</p>
         <p className="text-white/80 leading-7">
           Ide o čas, kontaktujte nás čo najskôr, ideálne do 24 hodín od poslednej
           spoľahlivej informácie o pohybe zvieraťa.

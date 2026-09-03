@@ -5,6 +5,7 @@ import MapGL, { Source, Layer, NavigationControl, type MapRef } from "react-map-
 import type { Feature, FeatureCollection, Geometry, GeoJsonProperties } from "geojson";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
+import { booleanIntersects, difference, featureCollection as turfFeatureCollection } from "@turf/turf";
 
 type DistrictKind = "covered" | "west" | "nodrone";
 
@@ -47,15 +48,26 @@ function kindColor(k: DistrictKind) {
   return k === "covered" ? "#10b981" : k === "west" ? "#9ca3af" : "#ef4444";
 }
 
+const ZONE_CATEGORY_REASON: Record<string, string> = {
+  "LZR - Restricted": "Vyhradený vzdušný priestor (napríklad vojenský priestor). Lety dronov si tu vyžadujú osobitné povolenie.",
+  "LZP - PROHIBITED": "Trvalo zakázaná zóna, lety dronov tu nie sú povolené.",
+  "ZVJS": "Areál väzenského zariadenia. Lety dronov sú tu zo bezpečnostných dôvodov zakázané.",
+  "Transport Authority": "Zónu určil Dopravný úrad SR, napríklad kvôli ochrane objektu alebo podujatia. Lety dronov sú tu obmedzené alebo zakázané.",
+};
+
+const BRATISLAVA_REASON =
+  "Hlavné mesto má riadený vzdušný priestor a hustú zástavbu. Lety dronov tu vyžadujú osobitné povolenie.";
+
 const COVERED_NAMES = [
   "Bánovce nad Bebravou", "Galanta", "Ilava", "Myjava", "Nitra",
   "Nové Mesto nad Váhom", "Piešťany", "Považská Bystrica", "Púchov", "Trenčín", "Šaľa",
+  "Poprad", "Senec",
 ].map(norm);
 
 const WEST_NAMES = [
   "Dunajská Streda", "Hlohovec", "Senica", "Skalica", "Trnava",
   "Partizánske", "Prievidza", "Komárno", "Levice", "Nové Zámky",
-  "Topoľčany", "Zlaté Moravce", "Senec",
+  "Topoľčany", "Zlaté Moravce",
 ].map(norm);
 
 const BRATISLAVA = [
@@ -66,13 +78,14 @@ const BRATISLAVA = [
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 const INITIAL_VIEW = { longitude: 19.7, latitude: 48.67, zoom: 6.9, pitch: 0, bearing: 0 };
 
-type SelectedState = { name: string; kind: DistrictKind; id: string | number; src: string } | null;
+type SelectedState = { name: string; kind: DistrictKind; id: string | number; src: string; reason?: string } | null;
 type HoverState = { name: string; kind: DistrictKind; x: number; y: number } | null;
 
 export default function MapCoverage() {
   const mapRef      = useRef<MapRef>(null);
   const hoverRef    = useRef<{ id: string | number; src: string } | null>(null);
   const selectedRef = useRef<SelectedState>(null);
+  const selectedZoneIdRef = useRef<string | number | null>(null);
   const featuresRef = useRef(new Map<string, Feature>());
 
   const [mounted,      setMounted]      = useState(false);
@@ -86,6 +99,11 @@ export default function MapCoverage() {
   const [westGeo,      setWestGeo]      = useState<FeatureCollection | null>(null);
   const [nodroneGeo,   setNodroneGeo]   = useState<FeatureCollection | null>(null);
   const [nodroneZones, setNodroneZones] = useState<FeatureCollection | null>(null);
+  const [coveredRender, setCoveredRender] = useState<FeatureCollection | null>(null);
+  const [westRender,    setWestRender]    = useState<FeatureCollection | null>(null);
+  const [countryGeo,    setCountryGeo]    = useState<FeatureCollection | null>(null);
+  const scrollEnabledRef = useRef(false);
+  const mapFocusedRef = useRef(false);
 
   useEffect(() => {
     setMounted(true);
@@ -100,6 +118,8 @@ export default function MapCoverage() {
   }, []);
 
   useEffect(() => { setLegendOpen(!isMobile); }, [isMobile]);
+
+  useEffect(() => { mapFocusedRef.current = mapFocused; }, [mapFocused]);
 
   useEffect(() => {
     fetch("/districts_epsg_4326.geojson")
@@ -123,16 +143,55 @@ export default function MapCoverage() {
             west.features.push(feat);
             wi++;
           } else if (BRATISLAVA.includes(n)) {
-            nodrone.features.push({ ...f, id: bi++ });
+            const feat = { ...f, id: bi };
+            featuresRef.current.set(`nodrone-source:${bi}`, feat as Feature);
+            nodrone.features.push(feat);
+            bi++;
           }
         }
         setCoveredGeo(covered);
         setWestGeo(west);
         setNodroneGeo(nodrone);
+        setCountryGeo(data as unknown as FeatureCollection);
       });
 
-    fetch("/nodronezones.geojson").then(r => r.json()).then(setNodroneZones);
+    fetch("/nodronezones.geojson")
+      .then(r => r.json())
+      .then((data: FeatureCollection) => {
+        setNodroneZones({
+          ...data,
+          features: data.features.map((f, i) => ({ ...f, id: i })),
+        });
+      });
   }, []);
+
+  // Vyreže z pokrytia diery tam, kde ho prekrýva bezdronová zóna — zelená/sivá
+  // farba potom len obteká okolo červenej, namiesto aby sa farby prekrývali.
+  useEffect(() => {
+    if (!coveredGeo || !westGeo || !nodroneZones || nodroneZones.features.length === 0) {
+      setCoveredRender(coveredGeo);
+      setWestRender(westGeo);
+      return;
+    }
+    const punchHoles = (fc: FeatureCollection): FeatureCollection => ({
+      type: "FeatureCollection",
+      features: fc.features.map((f) => {
+        let result = f as Feature;
+        for (const zone of nodroneZones.features) {
+          if (!booleanIntersects(result, zone as Feature)) continue;
+          try {
+            const diff = difference(turfFeatureCollection([result as never, zone as never]));
+            if (diff) result = { ...diff, id: f.id, properties: f.properties } as Feature;
+          } catch {
+            // geometry edge case (e.g. degenerate ring) — keep previous shape
+          }
+        }
+        return result;
+      }),
+    });
+    setCoveredRender(punchHoles(coveredGeo));
+    setWestRender(punchHoles(westGeo));
+  }, [coveredGeo, westGeo, nodroneZones]);
 
   const clearHover = useCallback(() => {
     const map = mapRef.current;
@@ -146,9 +205,25 @@ export default function MapCoverage() {
     const map = mapRef.current;
     if (!map) return;
     const pt: [number, number] = [e.point.x, e.point.y];
-    const hits = map.queryRenderedFeatures(pt, { layers: ["covered-fill", "west-fill"] });
+
+    // Koliesko myši priblíži mapu len nad územím Slovenska — inde nad mapou
+    // (susedné krajiny, prázdny okraj) necháme scrollovať stránku.
+    const overCountry = map.queryRenderedFeatures(pt, { layers: ["country-mask-fill"] }).length > 0;
+    const shouldEnableScroll = mapFocusedRef.current && overCountry;
+    if (shouldEnableScroll !== scrollEnabledRef.current) {
+      if (shouldEnableScroll) map.getMap().scrollZoom.enable();
+      else map.getMap().scrollZoom.disable();
+      scrollEnabledRef.current = shouldEnableScroll;
+    }
+
+    const hits = map.queryRenderedFeatures(pt, { layers: ["covered-fill", "west-fill", "nodrone-fill", "nodrone-zones-fill"] });
     if (hits.length > 0) {
       const f = hits[0];
+      if (f.layer?.id === "nodrone-fill" || f.layer?.id === "nodrone-zones-fill") {
+        clearHover();
+        map.getCanvas().style.cursor = "pointer";
+        return;
+      }
       if (f.id === undefined || f.id === null) return;
       if (hoverRef.current && (hoverRef.current.id !== f.id || hoverRef.current.src !== f.source)) {
         map.setFeatureState({ source: hoverRef.current.src, id: hoverRef.current.id }, { hover: false });
@@ -165,7 +240,11 @@ export default function MapCoverage() {
 
   const handleMouseLeave = useCallback(() => {
     clearHover();
-    if (mapRef.current) mapRef.current.getCanvas().style.cursor = "";
+    if (mapRef.current) {
+      mapRef.current.getCanvas().style.cursor = "";
+      mapRef.current.getMap().scrollZoom.disable();
+      scrollEnabledRef.current = false;
+    }
   }, [clearHover]);
 
   const handleClick = useCallback((e: { point: { x: number; y: number } }) => {
@@ -175,24 +254,53 @@ export default function MapCoverage() {
     if (selectedRef.current) {
       map.setFeatureState({ source: selectedRef.current.src, id: selectedRef.current.id }, { selected: false });
     }
-    const tryLayer = (layer: string, kind: DistrictKind, src: string): boolean => {
+    if (selectedZoneIdRef.current !== null) {
+      map.setFeatureState({ source: "nodrone-zones-source", id: selectedZoneIdRef.current }, { selected: false });
+      selectedZoneIdRef.current = null;
+    }
+    const tryLayer = (
+      layer: string,
+      kind: DistrictKind,
+      src: string,
+      opts?: { name?: string; reason?: string; zoom?: boolean }
+    ): boolean => {
       const hits = map.queryRenderedFeatures(pt, { layers: [layer] });
       if (!hits.length || hits[0].id === undefined || hits[0].id === null) return false;
       const f = hits[0];
       const id = f.id as string | number;
-      const name = districtName(f.properties);
+      const name = opts?.name ?? districtName(f.properties);
+      const reason = opts?.reason ?? (f.properties?.category ? ZONE_CATEGORY_REASON[f.properties.category as string] : undefined);
       map.setFeatureState({ source: src, id }, { selected: true });
-      const info: SelectedState = { name, kind, id, src };
+      const info: SelectedState = { name, kind, id, src, reason };
       selectedRef.current = info;
       setSelected(info);
-      const stored = featuresRef.current.get(`${src}:${id}`);
-      if (stored) {
-        const bounds = featureBounds(stored);
-        if (bounds) map.fitBounds(bounds, { padding: 80, pitch: 0, bearing: 0, duration: 900 });
+      if (opts?.zoom) {
+        const stored = featuresRef.current.get(`${src}:${id}`);
+        if (stored) {
+          const bounds = featureBounds(stored);
+          if (bounds) map.fitBounds(bounds, { padding: 80, pitch: 0, bearing: 0, duration: 900 });
+        }
       }
       return true;
     };
-    if (!tryLayer("covered-fill", "covered", "covered-source") && !tryLayer("west-fill", "west", "west-source")) {
+    const tryZoneLayer = (): boolean => {
+      const hits = map.queryRenderedFeatures(pt, { layers: ["nodrone-zones-fill"] });
+      if (!hits.length || hits[0].id === undefined || hits[0].id === null) return false;
+      const f = hits[0];
+      const category = (f.properties?.category as string) ?? "";
+      const reason = ZONE_CATEGORY_REASON[category] ?? "Lety dronov sú tu zakázané alebo obmedzené.";
+      map.setFeatureState({ source: "nodrone-zones-source", id: f.id }, { selected: true });
+      selectedZoneIdRef.current = f.id as string | number;
+      selectedRef.current = null;
+      setSelected({ name: "Bezdronová zóna", kind: "nodrone", id: "", src: "", reason });
+      return true;
+    };
+    if (
+      !tryLayer("covered-fill", "covered", "covered-source") &&
+      !tryLayer("west-fill", "west", "west-source") &&
+      !tryLayer("nodrone-fill", "nodrone", "nodrone-source", { reason: BRATISLAVA_REASON, zoom: true }) &&
+      !tryZoneLayer()
+    ) {
       selectedRef.current = null;
       setSelected(null);
     }
@@ -201,6 +309,10 @@ export default function MapCoverage() {
   const clearSelected = useCallback(() => {
     if (selectedRef.current && mapRef.current) {
       mapRef.current.setFeatureState({ source: selectedRef.current.src, id: selectedRef.current.id }, { selected: false });
+    }
+    if (selectedZoneIdRef.current !== null && mapRef.current) {
+      mapRef.current.setFeatureState({ source: "nodrone-zones-source", id: selectedZoneIdRef.current }, { selected: false });
+      selectedZoneIdRef.current = null;
     }
     selectedRef.current = null;
     setSelected(null);
@@ -232,7 +344,14 @@ export default function MapCoverage() {
   return (
     <div
       className="relative overflow-hidden"
-      onMouseLeave={() => setMapFocused(false)}
+      onMouseLeave={() => {
+        setMapFocused(false);
+        mapFocusedRef.current = false;
+        if (mapRef.current) {
+          mapRef.current.getMap().scrollZoom.disable();
+          scrollEnabledRef.current = false;
+        }
+      }}
     >
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
         <MapGL
@@ -240,16 +359,22 @@ export default function MapCoverage() {
           mapStyle={MAP_STYLE}
           initialViewState={initialView}
           style={{ width: "100%", height: mapHeight }}
-          scrollZoom={mapFocused}
+          scrollZoom={false}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           onClick={handleClick}
           onLoad={onMapLoad}
-          interactiveLayerIds={["covered-fill", "west-fill"]}
+          interactiveLayerIds={["covered-fill", "west-fill", "nodrone-fill", "nodrone-zones-fill"]}
           attributionControl={false}
         >
+          {countryGeo && (
+            <Source id="country-mask-source" type="geojson" data={countryGeo}>
+              <Layer id="country-mask-fill" type="fill" paint={{ "fill-opacity": 0 }} />
+            </Source>
+          )}
+
           {westGeo && (
-            <Source id="west-source" type="geojson" data={westGeo}>
+            <Source id="west-source" type="geojson" data={westRender ?? westGeo}>
               <Layer id="west-fill" type="fill" paint={{
                 "fill-color": "#9ca3af",
                 "fill-opacity": ["case",
@@ -266,7 +391,7 @@ export default function MapCoverage() {
           )}
 
           {coveredGeo && (
-            <Source id="covered-source" type="geojson" data={coveredGeo}>
+            <Source id="covered-source" type="geojson" data={coveredRender ?? coveredGeo}>
               <Layer id="covered-fill" type="fill" paint={{
                 "fill-color": ["case",
                   ["boolean", ["feature-state", "selected"], false], "#34d399",
@@ -289,14 +414,41 @@ export default function MapCoverage() {
 
           {nodroneGeo && (
             <Source id="nodrone-source" type="geojson" data={nodroneGeo}>
-              <Layer id="nodrone-fill" type="fill" paint={{ "fill-color": "#ef4444", "fill-opacity": 0.28 }} />
+              <Layer id="nodrone-fill" type="fill" paint={{
+                "fill-color": "#ef4444",
+                "fill-opacity": ["case",
+                  ["boolean", ["feature-state", "selected"], false], 0.45,
+                  0.28],
+              }} />
               <Layer id="nodrone-line" type="line" paint={{ "line-color": "#ef4444", "line-width": 1.2, "line-opacity": 0.6 }} />
             </Source>
           )}
 
           {nodroneZones && (
             <Source id="nodrone-zones-source" type="geojson" data={nodroneZones}>
-              <Layer id="nodrone-zones-fill" type="fill" paint={{ "fill-color": "#ef4444", "fill-opacity": 0.18 }} />
+              <Layer
+                id="nodrone-zones-fill"
+                type="fill"
+                paint={{
+                  "fill-color": ["case",
+                    ["boolean", ["feature-state", "selected"], false], "#fca5a5",
+                    ["get", "color"]],
+                  "fill-opacity": ["case",
+                    ["boolean", ["feature-state", "selected"], false], 0.7,
+                    0.4],
+                }}
+              />
+              <Layer
+                id="nodrone-zones-line"
+                type="line"
+                paint={{
+                  "line-color": ["case",
+                    ["boolean", ["feature-state", "selected"], false], "#fca5a5",
+                    ["get", "color"]],
+                  "line-width": ["case", ["boolean", ["feature-state", "selected"], false], 2, 1.2],
+                  "line-opacity": 0.9,
+                }}
+              />
             </Source>
           )}
 
@@ -377,13 +529,13 @@ export default function MapCoverage() {
         <AnimatePresence>
           {legendOpen && (
             <motion.div
-              className="pointer-events-auto rounded-xl bg-black/75 backdrop-blur-md px-4 py-3 shadow-xl min-w-[188px]"
+              className="pointer-events-auto rounded-xl bg-black/75 backdrop-blur-md px-4 py-3 shadow-xl w-[200px]"
               initial={{ opacity: 0, y: -4, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -4, scale: 0.98 }}
               transition={{ duration: 0.18 }}
             >
-              <p className="text-[10px] uppercase tracking-wider text-white/40 font-semibold mb-3">Pokrytie</p>
+              <p className="text-xs font-serif tracking-wide text-white/40 font-semibold mb-3">Legenda</p>
               <ul className="space-y-2.5 text-sm">
                 <li className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-2.5">
@@ -404,9 +556,6 @@ export default function MapCoverage() {
                   <span className="text-white/90">Bezdronové zóny</span>
                 </li>
               </ul>
-              <p className="mt-3 pt-2.5 border-t border-white/10 text-[10px] text-white/35 leading-4">
-                Kliknite na farebný okres pre detail.
-              </p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -445,9 +594,11 @@ export default function MapCoverage() {
                   <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: kindColor(selected.kind) }} />
                   <p className="text-base font-semibold text-white leading-tight">{selected.name}</p>
                 </div>
-                <p className="mt-0.5 text-xs font-medium" style={{ color: kindColor(selected.kind) }}>
-                  {kindLabel(selected.kind)}
-                </p>
+                {selected.src !== "" && (
+                  <p className="mt-0.5 text-xs font-medium" style={{ color: kindColor(selected.kind) }}>
+                    {kindLabel(selected.kind)}
+                  </p>
+                )}
               </div>
 
               {selected.kind !== "nodrone" ? (
@@ -458,10 +609,18 @@ export default function MapCoverage() {
                   >
                     Požiadať o pomoc
                   </Link>
+                  <p className="mt-2 text-[11px] text-white/35 leading-4">
+                    Pokrytie je orientačné, dostupnosť pre konkrétnu lokalitu si overíme po kontaktovaní.
+                  </p>
                 </div>
               ) : (
-                <div className="border-t border-white/10 px-4 py-2.5">
-                  <p className="text-xs text-white/40">Letové obmedzenia bránia operovaniu v tejto oblasti.</p>
+                <div className="border-t border-white/10 px-4 py-3">
+                  <p className="text-xs text-white/40 font-semibold mb-1">
+                    Toto je bezdronová zóna, tu nemôžeme lietať.
+                  </p>
+                  <p className="text-xs text-white/55 leading-5">
+                    {selected.reason ?? "Lety dronov sú tu zakázané alebo obmedzené."}
+                  </p>
                 </div>
               )}
             </motion.div>

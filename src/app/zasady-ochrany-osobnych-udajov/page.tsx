@@ -101,7 +101,7 @@ export default function ZasadyOchranyOsobnychUdajov() {
       <ul className="list-disc list-inside text-white/80 mb-4 space-y-1">
         <li>právo na prístup k svojim osobným údajom,</li>
         <li>právo na opravu nepresných alebo neúplných údajov,</li>
-        <li>právo na vymazanie („právo na zabudnutie"),</li>
+        <li>právo na vymazanie („právo na zabudnutie&rdquo;),</li>
         <li>právo na obmedzenie spracúvania,</li>
         <li>právo namietať proti spracúvaniu,</li>
         <li>právo na prenositeľnosť údajov, ak je to technicky možné,</li>

@@ -27,6 +27,11 @@ const reviews = [
     name: "Anna T.",
     detail: "",
   },
+  {
+    quote: "ochotní, milí team ľudí ❤️",
+    name: "Daniela G.",
+    detail: "",
+  },
 ];
 
 const variants = {
