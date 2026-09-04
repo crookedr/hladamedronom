@@ -197,7 +197,11 @@ export default function PostupInteractive() {
                   strokeWidth="4"
                   strokeLinecap="round"
                   filter="url(#postup-glow)"
-                  initial={{ opacity: 0, strokeDasharray: `0 ${pathLength}` }}
+                  initial={{
+                    opacity: 0,
+                    strokeDasharray: `0 ${pathLength}`,
+                    strokeDashoffset: 0,
+                  }}
                   animate={{
                     opacity: 1,
                     strokeDasharray: `${visibleLen} ${pathLength}`,

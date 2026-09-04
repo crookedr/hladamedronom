@@ -132,7 +132,7 @@ function MobileView({ active, setActive, onInteract }: SharedProps) {
             src={m.img}
             alt={m.name}
             fill
-            sizes="100vw"
+            sizes="calc(100vw - 48px)"
             priority
             style={{
               objectFit: "cover",

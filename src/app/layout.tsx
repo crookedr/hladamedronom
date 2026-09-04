@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="sk">
+    <html lang="sk" data-scroll-behavior="smooth">
       <body className={`${inter.className} bg-[#0b0d10] text-white antialiased overflow-x-hidden overflow-y-auto`}>
         <PageTransition>{children}</PageTransition>
         <Cookiebanner />

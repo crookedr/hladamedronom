@@ -77,6 +77,7 @@ const BRATISLAVA = [
 
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 const INITIAL_VIEW = { longitude: 19.7, latitude: 48.67, zoom: 6.9, pitch: 0, bearing: 0 };
+const SK_BOUNDS: [[number, number], [number, number]] = [[16.83, 47.73], [22.56, 49.60]];
 
 type SelectedState = { name: string; kind: DistrictKind; id: string | number; src: string; reason?: string } | null;
 type HoverState = { name: string; kind: DistrictKind; x: number; y: number } | null;
@@ -317,8 +318,6 @@ export default function MapCoverage() {
     selectedRef.current = null;
     setSelected(null);
   }, []);
-
-  const SK_BOUNDS: [[number, number], [number, number]] = [[16.83, 47.73], [22.56, 49.60]];
 
   const resetView = useCallback(() => {
     clearSelected();

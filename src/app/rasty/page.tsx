@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import RastyHero from "@/components/RastyHero";
 import RastyTimeline from "@/components/RastyTimeline";
 import RastyQuote from "@/components/RastyQuote";
+import FacebookVideo from "@/components/FacebookVideo";
 
 export const metadata: Metadata = {
   title: "Rasty",
@@ -46,15 +47,7 @@ export default function RastyPage() {
 
         <section id="video" className="mx-auto max-w-5xl px-6 py-6 pb-16">
           <div className="aspect-video w-full overflow-hidden rounded-xl">
-            <iframe
-              src="https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Ffb.watch%2FDf5JjbgMb5%2F&show_text=false&width=1280"
-              width="1280"
-              height="720"
-              className="w-full h-full"
-              style={{ border: "none", overflow: "hidden" }}
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-              allowFullScreen
-            />
+            <FacebookVideo />
           </div>
         </section>
 

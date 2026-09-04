@@ -6,35 +6,28 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --max-warnings=0"
   },
   "dependencies": {
-    "@emailjs/browser": "^4.4.1",
     "@hookform/resolvers": "^5.2.2",
     "@turf/turf": "^7.4.0",
     "framer-motion": "^12.23.24",
-    "leaflet": "^1.9.4",
     "maplibre-gl": "^5.24.0",
-    "next": "^16.0.7",
-    "qrcode": "^1.5.4",
+    "next": "16.3.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.65.0",
     "react-icons": "^5.5.0",
-    "react-leaflet": "^5.0.0",
     "react-map-gl": "^8.1.1",
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/leaflet": "^1.9.21",
     "@types/node": "^20",
-    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.2.4",
+    "eslint-config-next": "16.3.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -242,7 +242,7 @@ export default function Srnciatka() {
                 transition={{ duration: 18, delay: i * 2.8, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute inset-0"
               >
-                <Image src={src} alt="" fill className="object-cover" />
+                <Image src={src} alt="" fill sizes="17vw" className="object-cover" />
               </motion.div>
             </motion.div>
           ))}
@@ -263,6 +263,7 @@ export default function Srnciatka() {
                 src={MOBILE_IMGS[mobileIdx]}
                 alt=""
                 fill
+                sizes="100vw"
                 className="object-cover"
               />
               <div

@@ -61,7 +61,7 @@ export default function RastyQuote() {
             transition={{ duration: 0.6, ease: EASE, delay: 0.4 }}
             className="mt-10 text-white/28 italic text-base leading-7"
           >
-            „Jeho príbeh je začiatkom všetkého, čo dnes robíme."
+            „Jeho príbeh je začiatkom všetkého, čo dnes robíme.“
           </motion.p>
         </motion.div>
 

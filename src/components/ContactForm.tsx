@@ -11,14 +11,14 @@ const URGENT_PHONE = "+421 911 919 140";
 const PhoneRegex = /^\+?[0-9\s]{7,20}$/;
 
 const Schema = z.object({
-  firstName: z.string().min(2, "Zadaj aspoň 2 znaky"),
-  lastName: z.string().min(2, "Zadaj aspoň 2 znaky"),
+  firstName: z.string().trim().min(2, "Zadaj aspoň 2 znaky").max(80, "Najviac 80 znakov"),
+  lastName: z.string().trim().min(2, "Zadaj aspoň 2 znaky").max(80, "Najviac 80 znakov"),
   phone: z
     .string()
     .min(7, "Zadaj telefónne číslo")
     .regex(PhoneRegex, { message: 'Len čísla, medzery a "+", min. 7 znakov' }),
-  email: z.string().email({ message: "Zadaj platný email" }),
-  message: z.string().min(10, "Napíš aspoň 10 znakov"),
+  email: z.string().trim().email({ message: "Zadaj platný email" }).max(254, "Email je príliš dlhý"),
+  message: z.string().trim().min(10, "Napíš aspoň 10 znakov").max(5000, "Najviac 5000 znakov"),
 });
 type FormData = z.infer<typeof Schema>;
 
@@ -77,15 +77,25 @@ export default function ContactForm() {
     fd.append("from_email", values.email);
     fd.append("replyto", values.email);
     fd.append("subject", "Nová správa z kontaktného formulára");
+    // Web3Forms honeypot. Legitímny používateľ toto pole nikdy nevyplní.
+    fd.append("botcheck", "");
 
     try {
-      const res = await fetch("https://api.web3forms.com/submit", { method: "POST", body: fd });
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 15_000);
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: fd,
+        signal: controller.signal,
+        headers: { Accept: "application/json" },
+      });
+      window.clearTimeout(timeout);
       const raw = await res.text();
       let data: W3FResp | null = null;
       try { data = JSON.parse(raw) as W3FResp; } catch { /* empty */ }
-      if (!res.ok) { setResult(`❌ HTTP ${res.status}${data?.message ? ` – ${data.message}` : ""}`); return; }
+      if (!res.ok) { setResult(`❌ Správu sa nepodarilo odoslať (HTTP ${res.status}).`); return; }
       if (data?.success) { setShowThanks(true); reset(); setResult(""); }
-      else setResult(`❌ ${data?.message || "Neznáma chyba servera"}`);
+      else setResult("❌ Správu sa nepodarilo odoslať.");
     } catch (e: unknown) {
       setResult(`❌ Nepodarilo sa odoslať (${e instanceof Error ? e.message : String(e)})`);
     }
@@ -102,12 +112,12 @@ export default function ContactForm() {
         <div className="grid gap-8 sm:grid-cols-2">
           <div>
             <label htmlFor="firstName" className={labelBase}>Meno *</label>
-            <input id="firstName" {...register("firstName")} placeholder="Meno" className={inputBase} aria-invalid={!!errors.firstName} />
+            <input id="firstName" {...register("firstName")} placeholder="Meno" className={inputBase} aria-invalid={!!errors.firstName} maxLength={80} autoComplete="given-name" />
             {errors.firstName && <p className="text-red-400 text-sm mt-1">{errors.firstName.message}</p>}
           </div>
           <div>
             <label htmlFor="lastName" className={labelBase}>Priezvisko *</label>
-            <input id="lastName" {...register("lastName")} placeholder="Priezvisko" className={inputBase} aria-invalid={!!errors.lastName} />
+            <input id="lastName" {...register("lastName")} placeholder="Priezvisko" className={inputBase} aria-invalid={!!errors.lastName} maxLength={80} autoComplete="family-name" />
             {errors.lastName && <p className="text-red-400 text-sm mt-1">{errors.lastName.message}</p>}
           </div>
         </div>
@@ -117,12 +127,12 @@ export default function ContactForm() {
             <label htmlFor="phone" className={labelBase}>Telefón *</label>
             <input id="phone" {...register("phone")} type="tel" inputMode="tel" placeholder="+421 911 111 111"
               className={inputBase} onKeyDown={handlePhoneKeyDown} onInput={handlePhoneInput}
-              aria-invalid={!!errors.phone} maxLength={20} />
+              aria-invalid={!!errors.phone} maxLength={20} autoComplete="tel" />
             {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>}
           </div>
           <div>
             <label htmlFor="email" className={labelBase}>Email *</label>
-            <input id="email" {...register("email")} type="email" placeholder="email@gmail.com" className={inputBase} aria-invalid={!!errors.email} />
+            <input id="email" {...register("email")} type="email" placeholder="email@gmail.com" className={inputBase} aria-invalid={!!errors.email} maxLength={254} autoComplete="email" />
             {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
           </div>
         </div>
@@ -131,7 +141,7 @@ export default function ContactForm() {
           <label htmlFor="message" className={labelBase}>Správa *</label>
           <textarea id="message" {...register("message")} rows={6}
             placeholder="Sem napíšte viac detailov o situácii…"
-            className={inputBase + " resize-none"} aria-invalid={!!errors.message} />
+            className={inputBase + " resize-none"} aria-invalid={!!errors.message} maxLength={5000} />
           {errors.message && <p className="text-red-400 text-sm mt-1">{errors.message.message}</p>}
         </div>
 
